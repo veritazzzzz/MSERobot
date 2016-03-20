@@ -1,3 +1,5 @@
+
+
 #include <uSTimer2.h>
 
 #include <I2CEncoder.h>
@@ -28,6 +30,9 @@ Servo servo_BaseArmMotor;
 Servo servo_TopArmMotor
 Servo servo_GripMotor;
 
+Servo left_grip_servo; //these two are for the grip to open and close
+Servo right_grip_servo;
+
 I2CEncoder encoder_FrontRightMotor;
 I2CEncoder encoder_FrontLeftMotor;
 I2CEncoder encoder_BackRightMotor;
@@ -56,7 +61,7 @@ const int ci_Charlieplex_LED4 = 7;
 const int ci_Mode_Button = 7;
 const int ci_Right_Motor = 8;
 const int ci_Left_Motor = 9;
-const int ci_Arm_Motor = 10;                                      //place the port pins here (ultrasonic, motors) 
+const int ci_Arm_Motor = 10;                                      //place the port pins here (ultrasonic, motors)
 const int ci_Grip_Motor = 11;
 const int ci_Motor_Enable_Switch = 12;
 const int ci_Right_Line_Tracker = A0;
@@ -70,8 +75,8 @@ const int ci_I2C_SCL = A5;         // I2C clock = yellow
 const int ci_Heartbeat_LED = 1;
 const int ci_Indicator_LED = 10;
 /*const int ci_Right_Line_Tracker_LED = 6;
-const int ci_Middle_Line_Tracker_LED = 9;
-const int ci_Left_Line_Tracker_LED = 12;*/
+  const int ci_Middle_Line_Tracker_LED = 9;
+  const int ci_Left_Line_Tracker_LED = 12;*/
 
 //constants
 
@@ -83,7 +88,7 @@ const int ci_Front_Right_Motor_Offset_Address_L = 14;
 const int ci_Front_Right_Motor_Offset_Address_H = 15;
 
 const int ci_Back_Left_Motor_Offset_Address_L = 16;
-const int ci_Back_Left_Motor_Offset_Address_H = 17;       //not sure if 16-19 are correct 
+const int ci_Back_Left_Motor_Offset_Address_H = 17;       //not sure if 16-19 are correct
 const int ci_Back_Right_Motor_Offset_Address_L = 18;
 const int ci_Back_Right_Motor_Offset_Address_H = 19;
 
@@ -93,7 +98,7 @@ boolean pauseHere;
 int stageCounter = 0;
 const int ci_Front_Left_Motor_Stop = 1500;        // 200 for brake mode; 1500 for stop
 const int ci_Front_Right_Motor_Stop = 1500;
-const int ci_Back_Left_Motor_Stop = 1500;        
+const int ci_Back_Left_Motor_Stop = 1500;
 const int ci_Back_Right_Motor_Stop = 1500;
 
 const int ci_Grip_Motor_Stop = 1500;
@@ -105,21 +110,21 @@ const int ci_BaseArm_Servo_Retracted = 55;      //  "
 const int ci_BaseArm_Servo_Extended = 120;      //  "
 
 const int ci_TopArm_Servo_Retracted = 55;      //  "
-const int ci_TopArm_Servo_Extended = 120;  
+const int ci_TopArm_Servo_Extended = 120;
 
 const int ci_Display_Time = 500;
 /*const int ci_Line_Tracker_Calibration_Interval = 100;
-const int ci_Line_Tracker_Cal_Measures = 20;
-const int ci_Line_Tracker_Tolerance = 100; // May need to adjust this
-const int ci_Motor_Calibration_Time = 5000;*/
+  const int ci_Line_Tracker_Cal_Measures = 20;
+  const int ci_Line_Tracker_Tolerance = 100; // May need to adjust this
+  const int ci_Motor_Calibration_Time = 5000;*/
 
 //variables
 byte b_LowByte;
 byte b_HighByte;
 unsigned long ul_Echo_Time;
 /*unsigned int ui_Left_Line_Tracker_Data;
-unsigned int ui_Middle_Line_Tracker_Data;
-unsigned int ui_Right_Line_Tracker_Data;*/
+  unsigned int ui_Middle_Line_Tracker_Data;
+  unsigned int ui_Right_Line_Tracker_Data;*/
 unsigned int ui_Motors_Speed = 1900;        // Default run speed
 
 unsigned int ui_Front_Left_Motor_Speed;
@@ -138,19 +143,19 @@ unsigned long ul_3_Second_timer = 0;
 unsigned long ul_Display_Time;
 unsigned long ul_Calibration_Time;
 
-unsigned long ui_Front_Left_Motor_Offset; 
+unsigned long ui_Front_Left_Motor_Offset;
 unsigned long ui_Front_Right_Motor_Offset;
-unsigned long ui_Back_Left_Motor_Offset; 
+unsigned long ui_Back_Left_Motor_Offset;
 unsigned long ui_Back_Right_Motor_Offset;
 
 /*unsigned int ui_Cal_Count;
-unsigned int ui_Left_Line_Tracker_Dark;
-unsigned int ui_Left_Line_Tracker_Light;
-unsigned int ui_Middle_Line_Tracker_Dark;
-unsigned int ui_Middle_Line_Tracker_Light;
-unsigned int ui_Right_Line_Tracker_Dark;
-unsigned int ui_Right_Line_Tracker_Light;
-unsigned int ui_Line_Tracker_Tolerance;*/
+  unsigned int ui_Left_Line_Tracker_Dark;
+  unsigned int ui_Left_Line_Tracker_Light;
+  unsigned int ui_Middle_Line_Tracker_Dark;
+  unsigned int ui_Middle_Line_Tracker_Light;
+  unsigned int ui_Right_Line_Tracker_Dark;
+  unsigned int ui_Right_Line_Tracker_Light;
+  unsigned int ui_Line_Tracker_Tolerance;*/
 
 unsigned int  ui_Robot_State_Index = 0;
 //0123456789ABCDEF
@@ -189,9 +194,41 @@ unsigned long max_light_position = 0;
 int which_case = 0;
 unsigned long current_position = 0;
 
+
+/////////////////////////////////////////////////////////////
+//JULIAN'S GLOBAL VARIABLES
+/////////////////////////////////////////////////////////////
+//for opening and closing the grip
+int open_pos = 40; //angle associated with claw open
+int closed_pos = 160; //angle associated with claw closed
+
+//for navigation
+int current_pos[3]; //0th position is x coordinate, 1st is y, 2nd is directionality register
+int last_known_cube_pos [3];
+int home_pos[2]; //no directuionality b/c we know always pointing in the positive direction
+//just x and y coordinates {[x][y]}
+int cubesCollected; //keeps track of how many cubes have been collected
+int numberOfPasses; //keeps track of how many times we've driven in the y-direction
+
+
+
+
 void setup() {
 
   pauseHere = true;
+
+  /////////////////////////////////////////////////
+  //initializing navigational functions and variables
+  cubesCollected = 0;
+  numberOfPasses = 0;
+  //initPos(); //initialze the home position only when the robot starts each round
+  current_pos[2] = 0; //sets the direction to positive y orientation
+  // TURN 180 FUNCTION SHOULD FLIP THIS VALUE TO 1
+  //TO INDICATE TRAVELLING IN THE NEGATIVE DIRECTION
+  cubeFound = false;
+  /////////////////////////////////////////////////////
+
+
 
 
   Wire.begin();        // Wire library required for I2CEncoder library
@@ -212,9 +249,9 @@ void setup() {
 
   pinMode(ci_Right_Ultrasonic_Ping, OUTPUT);
   pinMode(ci_Right_Ultrasonic_Data, INPUT);
-  
 
-  // set up drive motors, need to reinitialize names 
+
+  // set up drive motors, need to reinitialize names
   pinMode(ci_Front_Right_Motor, OUTPUT);
   servo_RightMotor.attach(ci_Front_Right_Motor);
   pinMode(ci_Front_Left_Motor, OUTPUT);
@@ -225,12 +262,18 @@ void setup() {
   servo_RightMotor.attach(ci_Back_Left_Motor);
 
 
+  ///////////////////////////////////////////////////////
+  // setting up grip servos
+  left_grip_servo.attach(4); //the pins here are arbitrary and can be changed
+  right_grip_servo.attach(5);
+
+
   // set up arm motors
   pinMode(ci_Base_Arm_Motor, OUTPUT);
   servo_ArmMotor.attach(ci_Base_Arm_Motor);
   pinMode(ci_Top_Arm_Motor, OUTPUT);
   servo_ArmMotor.attach(ci_Top_Arm_Motor);
-  
+
   pinMode(ci_Grip_Motor, OUTPUT);
   servo_GripMotor.attach(ci_Grip_Motor);
   servo_GripMotor.write(ci_Grip_Motor_Zero);
@@ -305,10 +348,10 @@ void loop()
 
   // modes
   // 0 = default after power up/reset
-  // 1 = Press mode button once to enter. Run robot.  - 
-  // 2 = Press mode button twice to enter. Calibrate line tracker light level.      - Won't need 
-  // 3 = Press mode button three times to enter. Calibrate line tracker dark level. - Won't need 
-  // 4 = Press mode button four times to enter. Calibrate motor speeds to drive straight. - Might need 
+  // 1 = Press mode button once to enter. Run robot.  -
+  // 2 = Press mode button twice to enter. Calibrate line tracker light level.      - Won't need
+  // 3 = Press mode button three times to enter. Calibrate line tracker dark level. - Won't need
+  // 4 = Press mode button four times to enter. Calibrate motor speeds to drive straight. - Might need
   switch (ui_Robot_State_Index)
   {
     case 0:    //Robot stopped
@@ -410,12 +453,12 @@ void loop()
             servo_FrontRightMotor.writeMicroseconds(ci_Front_Right_Motor_Stop);
             servo_BackLeftMotor.writeMicroseconds(ci_Back_Left_Motor_Stop);
             servo_BackRightMotor.writeMicroseconds(ci_Back_Right_Motor_Stop);
-            
+
             ul_Front_Left_Motor_Position = encoder_FrontLeftMotor.getRawPosition();
             ul_Front_Right_Motor_Position = encoder_FrontRightMotor.getRawPosition();
             ul_Back_Left_Motor_Position = encoder_BackLeftMotor.getRawPosition();
             ul_Back_Right_Motor_Position = encoder_BackRightMotor.getRawPosition();
-            
+
             if (ul_Left_Motor_Position > ul_Right_Motor_Position)
             {
               // May have to update this if different calibration time is used
@@ -478,7 +521,7 @@ void loop()
         //if here, now pointing left
         servo_LeftMotor.writeMicroseconds(200); //stop
         servo_RightMotor.writeMicroseconds(200);
-        
+
         which_case = 1;//set to 1 so next time breaks out of case 1, goes into case 7
         ui_Robot_State_Index = 1;  //when breaks from this case, it will go back into 1
         break;
@@ -753,146 +796,320 @@ void Indicator()
 }
 
 #ifdef DEBUG_LINE_TRACKERS
-  Serial.print("Trackers: Left = ");
-  Serial.print(ui_Left_Line_Tracker_Data, DEC);
-  Serial.print(", Middle = ");
-  Serial.print(ui_Middle_Line_Tracker_Data, DEC);
-  Serial.print(", Right = ");
-  Serial.println(ui_Right_Line_Tracker_Data, DEC);
+Serial.print("Trackers: Left = ");
+Serial.print(ui_Left_Line_Tracker_Data, DEC);
+Serial.print(", Middle = ");
+Serial.print(ui_Middle_Line_Tracker_Data, DEC);
+Serial.print(", Right = ");
+Serial.println(ui_Right_Line_Tracker_Data, DEC);
 #endif
 
 }
 
-//*****Driving Functions***** 
+//*****Driving Functions*****
 
-void forward((int speed, int angle){
-  servo_FrontLeftMotor.writeMicroseconds(1500+speed); //forward
-  servo_FrontRightMotor.writeMicroseconds(1500+speed); //forward
-  servo_BackLeftMotor.writeMicroseconds(1500+speed); //forward
-  servo_BackRightMotor.writeMicroseconds(1500+speed); //forward 
+void forward((int speed, int angle) {
+  servo_FrontLeftMotor.writeMicroseconds(1500 + speed); //forward
+  servo_FrontRightMotor.writeMicroseconds(1500 + speed); //forward
+  servo_BackLeftMotor.writeMicroseconds(1500 + speed); //forward
+  servo_BackRightMotor.writeMicroseconds(1500 + speed); //forward
 }
 
-void reverse(int speed, int angle){
-  servo_FrontLeftMotor.writeMicroseconds(1500-speed); //reverse
-  servo_FrontRightMotor.writeMicroseconds(1500-speed); //reverse
-  servo_BackLeftMotor.writeMicroseconds(1500-speed); //reverse
-  servo_BackRightMotor.writeMicroseconds(1500-speed); //reverse  
+void reverse(int speed, int angle) {
+  servo_FrontLeftMotor.writeMicroseconds(1500 - speed); //reverse
+  servo_FrontRightMotor.writeMicroseconds(1500 - speed); //reverse
+  servo_BackLeftMotor.writeMicroseconds(1500 - speed); //reverse
+  servo_BackRightMotor.writeMicroseconds(1500 - speed); //reverse
 }
 
-void moveLeft(int speed, int angle){
-  servo_FrontLeftMotor.writeMicroseconds(1500-speed); //reverse
-  servo_FrontRightMotor.writeMicroseconds(1500+speed); //forward
-  servo_BackLeftMotor.writeMicroseconds(1500+speed); //forward
-  servo_BackRightMotor.writeMicroseconds(1500-speed); //reverse 
+void moveLeft(int speed, int angle) {
+  servo_FrontLeftMotor.writeMicroseconds(1500 - speed); //reverse
+  servo_FrontRightMotor.writeMicroseconds(1500 + speed); //forward
+  servo_BackLeftMotor.writeMicroseconds(1500 + speed); //forward
+  servo_BackRightMotor.writeMicroseconds(1500 - speed); //reverse
 }
 
-void moveRight(int speed, int angle){
-  servo_FrontLeftMotor.writeMicroseconds(1500+speed); //forward
-  servo_FrontRightMotor.writeMicroseconds(1500-speed); //reverse
-  servo_BackLeftMotor.writeMicroseconds(1500-speed); //reverse
-  servo_BackRightMotor.writeMicroseconds(1500+speed); //forward 
+void moveRight(int speed, int angle) {
+  servo_FrontLeftMotor.writeMicroseconds(1500 + speed); //forward
+  servo_FrontRightMotor.writeMicroseconds(1500 - speed); //reverse
+  servo_BackLeftMotor.writeMicroseconds(1500 - speed); //reverse
+  servo_BackRightMotor.writeMicroseconds(1500 + speed); //forward
 }
 
-void rotateClockwise(int speed, int angle){
-  //change the numbers accordingly 
-  servo_FrontLeftMotor.writeMicroseconds(1500+speed); //forward
-  servo_FrontRightMotor.writeMicroseconds(1500-speed); //reverse
-  servo_BackLeftMotor.writeMicroseconds(1500+speed); //forward
-  servo_BackRightMotor.writeMicroseconds(1500-speed); //reverse  
-  delay(angle); 
-  
+void rotateClockwise(int speed, int angle) {
+  //change the numbers accordingly
+  servo_FrontLeftMotor.writeMicroseconds(1500 + speed); //forward
+  servo_FrontRightMotor.writeMicroseconds(1500 - speed); //reverse
+  servo_BackLeftMotor.writeMicroseconds(1500 + speed); //forward
+  servo_BackRightMotor.writeMicroseconds(1500 - speed); //reverse
+  delay(angle);
+
 }
-void rotateCounterClockwise(int speed, int angle){
-  //change and test numbers accordingly 
-  servo_FrontLeftMotor.writeMicroseconds(1500-speed); //reverse
-  servo_FrontRightMotor.writeMicroseconds(1500+speed); //forward
-  servo_BackLeftMotor.writeMicroseconds(1500-speed); //reverse 
-  servo_BackRightMotor.writeMicroseconds(1500+speed); //forward 
+void rotateCounterClockwise(int speed, int angle) {
+  //change and test numbers accordingly
+  servo_FrontLeftMotor.writeMicroseconds(1500 - speed); //reverse
+  servo_FrontRightMotor.writeMicroseconds(1500 + speed); //forward
+  servo_BackLeftMotor.writeMicroseconds(1500 - speed); //reverse
+  servo_BackRightMotor.writeMicroseconds(1500 + speed); //forward
   delay(angle);
 }
 
-void forwardLeftDiagonal(int speed, int angle){
-  servo_FrontRightMotor.writeMicroseconds(1500+speed); //forward
-  servo_BackLeftMotor.writeMicroseconds(1500+speed); //forward
+void forwardLeftDiagonal(int speed, int angle) {
+  servo_FrontRightMotor.writeMicroseconds(1500 + speed); //forward
+  servo_BackLeftMotor.writeMicroseconds(1500 + speed); //forward
 }
 
-void forwardRightDiagonal (int speed, int angle){
-  servo_FrontLeftMotor.writeMicroseconds(1500+speed); //forward
-  servo_BackRightMotor.writeMicroseconds(1500+speed); //forward
+void forwardRightDiagonal (int speed, int angle) {
+  servo_FrontLeftMotor.writeMicroseconds(1500 + speed); //forward
+  servo_BackRightMotor.writeMicroseconds(1500 + speed); //forward
 }
 
-void reverseRightDiagonal(int speed, int angle){
-  servo_FrontRightMotor.writeMicroseconds(1500-speed); //reverse
-  servo_BackLeftMotor.writeMicroseconds(1500-speed); //reverse
+void reverseRightDiagonal(int speed, int angle) {
+  servo_FrontRightMotor.writeMicroseconds(1500 - speed); //reverse
+  servo_BackLeftMotor.writeMicroseconds(1500 - speed); //reverse
 }
 
-void reverseLeftDiagonal(int speed, int angle){
-  servo_FrontLeftMotor.writeMicroseconds(1500-speed); //reverse
-  servo_BackRightMotor.writeMicroseconds(1500-speed); //reverse 
+void reverseLeftDiagonal(int speed, int angle) {
+  servo_FrontLeftMotor.writeMicroseconds(1500 - speed); //reverse
+  servo_BackRightMotor.writeMicroseconds(1500 - speed); //reverse
 }
 
-void stop_motors(){
-  servo_FrontLeftMotor.writeMicroseconds(200); 
+void stop_motors() {
+  servo_FrontLeftMotor.writeMicroseconds(200);
   servo_FrontRightMotor.writeMicroseconds(200);
   servo_BackLeftMotor.writeMicroseconds(200);
-  servo_BackRightMotor.writeMicroseconds(200); 
+  servo_BackRightMotor.writeMicroseconds(200);
 }
 
 //*****Pinging Functions*****
 
 //allow the user to ping the front ultrasonic sensor
-void pingFront(int delayTime){
-digitalWrite(ci_Front_Ultrasonic_Ping, LOW); //giving a short pulse before hand to ensure a clean high pulse 
-delayMicroseconds(2);
-digitalWrite(ci_Front_Ultrasonic_Ping, HIGH); //keep in mind name for ultrasonic sensor might be different for other people 
-delayMicroseconds(delayTime); //used delay time so user could insert how long the ping is used for?? While it is driving along the left wall??
-duration = pulseIn(ci_Front_Ultrasonic_Ping, HIGH);
-cm = microsecondsToCentimeters(duration);
-Serial.print(cm);
-Serial.print("cm");
-Serial.println();
+void pingFront(int delayTime) {
+  digitalWrite(ci_Front_Ultrasonic_Ping, LOW); //giving a short pulse before hand to ensure a clean high pulse
+  delayMicroseconds(2);
+  digitalWrite(ci_Front_Ultrasonic_Ping, HIGH); //keep in mind name for ultrasonic sensor might be different for other people
+  delayMicroseconds(delayTime); //used delay time so user could insert how long the ping is used for?? While it is driving along the left wall??
+  duration = pulseIn(ci_Front_Ultrasonic_Ping, HIGH);
+  cm = microsecondsToCentimeters(duration);
+  Serial.print(cm);
+  Serial.print("cm");
+  Serial.println();
 }
 
-void pingBack(){
-// measure distance to target using ultrasonic sensor
-void Ping()
-{
-  
-  //Ping Ultrasonic
-  //Send the Ultrasonic Range Finder a 10 microsecond pulse per tech spec
-  digitalWrite(ci_Ultrasonic_Ping, HIGH);
-  delayMicroseconds(10);  //The 10 microsecond pause where the pulse in "high"
-  digitalWrite(ci_Ultrasonic_Ping, LOW);
-  //use command pulseIn to listen to Ultrasonic_Data pin to record the
-  //time that it takes from when the Pin goes HIGH until it goes LOW
-  ul_Echo_Time = pulseIn(ci_Ultrasonic_Data, HIGH, 10000);
+void pingBack() {
+  // measure distance to target using ultrasonic sensor
+  void Ping()
+  {
 
-  // Print Sensor Readings
+    //Ping Ultrasonic
+    //Send the Ultrasonic Range Finder a 10 microsecond pulse per tech spec
+    digitalWrite(ci_Ultrasonic_Ping, HIGH);
+    delayMicroseconds(10);  //The 10 microsecond pause where the pulse in "high"
+    digitalWrite(ci_Ultrasonic_Ping, LOW);
+    //use command pulseIn to listen to Ultrasonic_Data pin to record the
+    //time that it takes from when the Pin goes HIGH until it goes LOW
+    ul_Echo_Time = pulseIn(ci_Ultrasonic_Data, HIGH, 10000);
+
+    // Print Sensor Readings
 #ifdef DEBUG_ULTRASONIC
-  Serial.print("Time (microseconds): ");
-  Serial.print(ul_Echo_Time, DEC);
-  Serial.print(", Inches: ");
-  Serial.print(ul_Echo_Time / 148); //divide time by 148 to get distance in inches
-  Serial.print(", cm: ");
-  Serial.println(ul_Echo_Time / 58); //divide time by 58 to get distance in cm
+    Serial.print("Time (microseconds): ");
+    Serial.print(ul_Echo_Time, DEC);
+    Serial.print(", Inches: ");
+    Serial.print(ul_Echo_Time / 148); //divide time by 148 to get distance in inches
+    Serial.print(", cm: ");
+    Serial.println(ul_Echo_Time / 58); //divide time by 58 to get distance in cm
 #endif
-}
+  }
 
 }
 
-void pingLeft(){
+void pingLeft() {
 
 
 }
 
-void pingRight(){
+void pingRight() {
 
 }
 
-//used to convert microseconds (the data inputted) into centimeters so distances can be better gauged when pinging 
-long microsecondsToCentimeters(long microseconds){
+//used to convert microseconds (the data inputted) into centimeters so distances can be better gauged when pinging
+long microsecondsToCentimeters(long microseconds) {
   return microseconds / 29 / 2;
 }
+
+
+//////////////////////////////////////
+//MARCH 20, 2016
+//JULIAN ZANE
+//function takes open and closed positions of grip
+//closes the grip
+//////////////////////////////////////
+void grip_close(int open_pos, int closed_pos)
+{
+  for ( int n = open_pos; n < closed_pos; n++)
+  {
+    right_grip_servo.write(n);
+    left_grip_servo.write(180 - n); //180-n makes this one count move backwards
+    delay(15);
+    Serial.println(right_grip_servo.read());
+  }
+}
+
+
+
+
+//////////////////////////////////////
+//MARCH 20, 2016
+//JULIAN ZANE
+//function takes open and closed positions of grip
+//opens the grip
+//////////////////////////////////////
+void grip_open(int open_pos, int closed_pos)
+{
+  for ( int n = closed_pos; n > open_pos; n--)
+  {
+    right_grip_servo.write(n);
+    left_grip_servo.write(180 - n); //180-n makes this one count move backwards
+    delay(15);
+    //Serial.println(n);
+  }
+}
+
+
+
+
+
+
+
+//////////////////////////////////*
+JULIAN ZANE
+MARCH 19, 2016
+
+//function initialzes the home position
+//of the robot for future navigational use
+
+*/////////////////////////////////
+void initPos()
+{
+  //ping left and read 10 times to let values stabilize
+  for (int i = 0; i < 10; i++)
+  {
+    home_pos[0] = pingLeft(); //sets x coordinate
+    home_pos[1] = pingRight(); //sets y coordinate
+  }
+} //end function
+
+
+
+
+////////////////////////////////////*
+JULIAN ZANE
+MARCH 19, 2016
+
+//function takes care of driving around
+//and trying to find a cube
+//DOES NOT CONCERN ITSELF IF THE CUBE
+//IS REAL OR NOT JSUT YET (SEPERATE FUNCTION)
+*////////////////////////////////////
+void searchForCube()
+{
+  //while we're within our side of the course (our side of neutral zone)
+  while (current_pos[0] < ((sideLength / 2) - 2))
+  {
+    //checks for wall in front of robot
+    while (pingForward() > 25) //arbitrary distance
+    {
+      driveForward();
+      //////////////////////////////////////////////////////////////////////
+      //NOTE: MIGHT HAVE TO USE PINGFORWARD HALFWAY THROUGH OUR INCREASE OF Y COORDINATE
+      //////////////////////////////////////////////////////////////////////
+
+      //if travelling in positive y-direction
+      if (current_pos[3] == 0)
+      {
+        current_pos[1] = pingBackward(); //update y coordinate (might not even need this)
+        current_pos[0] = pingLeft(); //updates current x-coordinate
+
+        //veerLeft() and veerRight() keep us driving relatively straight in y-direction
+        //brings robot towards left wall if drifting right
+        if ( current_pos[0] > (10 * numberOfPasses) //comparative value is standard robot width * number of passes
+      {
+        veerLeft(); //new function to steer slightly to the left
+          //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER LEFT FOR A LITTLE AMOUNT
+          //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
+          //TO THIS PART OF THE CODE
+        }
+
+        //brings robot away from left wall if drifting left
+        if ( current_pos[0] < (10 * numberOfPasses)
+      {
+        veerRight(); //new function to steer slightly to the left
+          //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER RIGHT FOR A LITTLE AMOUNT
+          //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
+          //TO THIS PART OF THE CODE
+        }
+      }//end if(current_pos[3] == 0)
+
+      ///////////////////////////////////////////////////////////////////
+      //HAVE TO REWRITE ALL THE ABOVE CODE FOR WHEN WE TRAVEL IN NEGATIVE Y-DIRECTION
+      ///////////////////////////////////////////////////////////////////
+
+      //if travelling in negative y-direction
+      if (current_pos[3] == 1)
+      {
+        current_pos[1] = pingBackward(); //update y coordinate (might not even need this)
+        current_pos[0] = pingRight() + 20; //the added value accounts for width of robot
+
+        //veerLeft() and veerRight() keep us driving relatively straight in y-direction
+        //robot drifting left away from wall
+        if ( current_pos[0] > (10 * numberOfPasses)
+      {
+        veerRight(); //new function to steer slightly to the left
+          //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER LEFT FOR A LITTLE AMOUNT
+          //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
+          //TO THIS PART OF THE CODE
+        }
+
+        //brings drifting towards wall
+        if ( current_pos[0] < (10 * numberOfPasses)
+      {
+        veerLeft(); //new function to steer slightly to the left
+          //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER RIGHT FOR A LITTLE AMOUNT
+          //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
+          //TO THIS PART OF THE CODE
+        }
+      }//end if(current_pos[3] == 1)
+
+    } //end while
+
+    //if here, robot needs to turn around;
+    turnClockwise(180);//function should have a case for 180, where it flips
+    //the directionality register in "current_pos"
+    //as well as crabbing left or right based on current_pos[2] (directionality)
+    //to set us up for the next y-direction pass
+    //and increment the num,berOfPasses variable by one
+  }//end while
+
+}//end function
+
+
+
+//////////////////////////////////////////////////////////////////////////
+//TO DEBUG, SERIAL PRINT THE ARRAY "current_pos" TO MAKE SURE ITS VALUES
+//ARE BEING UPDATED IN REAL-TIME
+//
+//
+//
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+//ADD ISR TO STOP ROBOT AND BUMP INTO FUNCTION TO CHECK AND PICK UP BLOCK
+
+
+
 
 
 
