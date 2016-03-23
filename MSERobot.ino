@@ -1044,6 +1044,33 @@ void CheckCube()
 //cubePresent must be set back to false as soon as we drop a block off at "home position"
 
 
+void goHome()  
+{
+  last_known_cube_pos[0] = current_pos[0];
+  last_known_cube_pos[1] = current_pos[1];
+  last_known_cube_pos[2] = current_pos[2];
+  // records our current position to last knownn so we know where to start searchign
+  
+  if(current_pos[2] == 0) //facing positive y
+  {
+   while(current_pos[1] > home_pos[1]){
+     reverse(100);}
+
+   while(current_pos[0] > home_pos[0]{
+     moveLeft(100);} 
+   } 
+  
+  if(current_pos[2] == 1) //facing negative y
+  {
+   rotateClockwise(100,180);
+   
+   while(current_pos[0] > home_pos[0]){
+     movLeft(100);}
+   
+   while(current_pos[1] > home_pos[1]{
+     reverse(100);} 
+   } 
+}
 
 
 
