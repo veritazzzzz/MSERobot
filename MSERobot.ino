@@ -65,8 +65,10 @@ const int ci_Ultrasonic_Data = 3;   //output plug
 //PORT PINS GO HERE
 ///////////////////////////////////////////////////////
 const int ci_Mode_Button = 7;
-const int ci_Right_Motor = 8;
-const int ci_Left_Motor = 9;
+const int ci_FrontRight_Motor = 2;
+const int ci_FrontLeft_Motor = 3;
+const int ci_BackRight_Motor = 4;
+const int ci_BackLeft_Motor = 5;
 const int ci_Arm_Motor = 10;
 const int ci_Grip_Motor = 11;
 const int ci_Motor_Enable_Switch = 12;
@@ -80,6 +82,7 @@ const int ci_Front_Ultrasonic_Ping = 13;
 const int ci_Back_Ultrasonic_Ping = 14;
 const int ci_Left_Ultrasonic_Ping = 15;
 const int ci_Right_Ultrasonic_Ping = 16;
+
 
 //might have to go on seperate board
 int ISRPin = 13;
@@ -280,13 +283,13 @@ void setup() {
 
 
   // set up drive motors, need to reinitialize names
-  pinMode(ci_Front_Right_Motor, OUTPUT);
+  pinMode(ci_FrontRight_Motor, OUTPUT);
   servo_RightMotor.attach(ci_Front_Right_Motor);
-  pinMode(ci_Front_Left_Motor, OUTPUT);
+  pinMode(ci_FrontLeft_Motor, OUTPUT);
   servo_LeftMotor.attach(ci_Front_Left_Motor);
-  pinMode(ci_Back_Right_Motor, OUTPUT);
+  pinMode(ci_BackRight_Motor, OUTPUT);
   servo_RightMotor.attach(ci_Back_Right_Motor);
-  pinMode(ci_Back_Right_Motor, OUTPUT);
+  pinMode(ci_BackRight_Motor, OUTPUT);
   servo_RightMotor.attach(ci_Back_Left_Motor);
 
 
@@ -417,6 +420,10 @@ void loop()
           if (bt_Motors_Enabled)
           {
             //actual code goes in here
+            
+            
+            forward();
+            delay(1000);
 
 
           }
