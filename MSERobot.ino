@@ -1042,6 +1042,7 @@ void CheckCube()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //NOTES FOR MARCH 21, 2016:
 //cubePresent must be set back to false as soon as we drop a block off at "home position"
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 void goHome()  
@@ -1049,28 +1050,33 @@ void goHome()
   last_known_cube_pos[0] = current_pos[0];
   last_known_cube_pos[1] = current_pos[1];
   last_known_cube_pos[2] = current_pos[2];
-  // records our current position to last knownn so we know where to start searchign
+  // records our current position to last known so we know where to start searching
   
-  if(current_pos[2] == 0) //facing positive y
+  if(current_pos[2] == 1) //facing negative y
   {
    while(current_pos[1] > home_pos[1]){
      reverse(100);}
+     stop_motors(); //have to stop the motors after we move, or we'll continue driving in that direction forever, 
+                    // else it's good practise
 
    while(current_pos[0] > home_pos[0]{
-     moveLeft(100);} 
+     moveLeft(100);}
+     stop_motors(); 
    } 
   
-  if(current_pos[2] == 1) //facing negative y
+  if(current_pos[2] == 0) //facing positive y
   {
    rotateClockwise(100,180);
    
    while(current_pos[0] > home_pos[0]){
      movLeft(100);}
+     stop_motors();
    
    while(current_pos[1] > home_pos[1]{
      reverse(100);} 
+     stop_motors()
    } 
-}
+}//end go home
 
 
 
