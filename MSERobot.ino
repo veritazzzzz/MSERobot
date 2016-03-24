@@ -245,7 +245,7 @@ void setup() {
   //setting up ISR
   //////////////////////
   pinMode(ISRPin, OUTPUT);
-  attachInterrupt(digitalPinTOInterrupt(ISRPin), CheckCube(), RISING); //setting up ISR from LOW to HIGH on ISRPin
+ // attachInterrupt(digitalPinTOInterrupt(ISRPin), CheckCube(), RISING); //setting up ISR from LOW to HIGH on ISRPin
 
 
   pauseHere = true;
@@ -284,13 +284,13 @@ void setup() {
 
   // set up drive motors, need to reinitialize names
   pinMode(ci_FrontRight_Motor, OUTPUT);
-  servo_RightMotor.attach(ci_Front_Right_Motor);
+  servo_RightMotor.attach(ci_FrontRight_Motor);
   pinMode(ci_FrontLeft_Motor, OUTPUT);
-  servo_LeftMotor.attach(ci_Front_Left_Motor);
+  servo_LeftMotor.attach(ci_FrontLeft_Motor);
   pinMode(ci_BackRight_Motor, OUTPUT);
-  servo_RightMotor.attach(ci_Back_Right_Motor);
+  servo_RightMotor.attach(ci_BackRight_Motor);
   pinMode(ci_BackRight_Motor, OUTPUT);
-  servo_RightMotor.attach(ci_Back_Left_Motor);
+  servo_RightMotor.attach(ci_BackLeft_Motor);
 
 
   ///////////////////////////////////////////////////////
