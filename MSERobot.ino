@@ -852,7 +852,72 @@ void forward((int speed, int angle) {
   servo_FrontRightMotor.writeMicroseconds(1500 + speed); //forward
   servo_BackLeftMotor.writeMicroseconds(1500 + speed); //forward
   servo_BackRightMotor.writeMicroseconds(1500 + speed); //forward
-}
+
+  //////////////////////////////////
+  //added from searchForCubes()
+  //THIS CODE ALLOWS THE ROBOT TO TRAVEL IN A STRAIGHT LINE
+  //////////////////////////////////////////////////////////////////////
+  //NOTE: MIGHT HAVE TO USE PINGFORWARD HALFWAY THROUGH OUR INCREASE OF Y COORDINATE
+  //////////////////////////////////////////////////////////////////////
+
+  //if travelling in positive y-direction
+  if (current_pos[2] == 0)
+  {
+    current_pos[1] = pingBack(); //update y coordinate (might not even need this)
+    current_pos[0] = pingLeft(); //updates current x-coordinate
+
+    //veerLeft() and veerRight() keep us driving relatively straight in y-direction
+    //brings robot towards left wall if drifting right
+    if ( current_pos[0] > (10 * numberOfPasses) //comparative value is standard robot width * number of passes
+  {
+    veerLeft(); //new function to steer slightly to the left
+      //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER LEFT FOR A LITTLE AMOUNT
+      //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
+      //TO THIS PART OF THE CODE
+    }
+
+    //brings robot away from left wall if drifting left
+    if ( current_pos[0] < (10 * numberOfPasses)
+  {
+    veerRight(); //new function to steer slightly to the left
+      //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER RIGHT FOR A LITTLE AMOUNT
+      //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
+      //TO THIS PART OF THE CODE
+    }
+  }//end if(current_pos[2] == 0)
+
+  ///////////////////////////////////////////////////////////////////
+  //HAVE TO REWRITE ALL THE ABOVE CODE FOR WHEN WE TRAVEL IN NEGATIVE Y-DIRECTION
+  ///////////////////////////////////////////////////////////////////
+
+  //if travelling in negative y-direction
+  if (current_pos[2] == 1)
+  {
+    current_pos[1] = pingBack(); //update y coordinate (might not even need this)
+    current_pos[0] = pingRight() + 20; //the added value accounts for width of robot MIGHT NOT NEED TO ACCOUTN FOR ROBOT WIDTH
+
+    //veerLeft() and veerRight() keep us driving relatively straight in y-direction
+    //robot drifting left away from wall
+    if ( current_pos[0] > (10 * numberOfPasses)
+  {
+    veerRight(); //new function to steer slightly to the left
+      //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER LEFT FOR A LITTLE AMOUNT
+      //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
+      //TO THIS PART OF THE CODE
+    }
+
+    //brings drifting towards wall
+    if ( current_pos[0] < (10 * numberOfPasses)
+  {
+    veerLeft(); //new function to steer slightly to the left
+      //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER RIGHT FOR A LITTLE AMOUNT
+      //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
+      //TO THIS PART OF THE CODE
+    }
+  }//end if(current_pos[2] == 1)
+
+
+}//END FORWARD()
 
 void reverse(int speed, int angle) {
   servo_FrontLeftMotor.writeMicroseconds(1500 - speed); //reverse
@@ -1050,75 +1115,36 @@ void searchForCube()
     //checks for wall in front of robot
     while (pingForward() > 25) //arbitrary distance
     {
-      driveForward();
-      //////////////////////////////////////////////////////////////////////
-      //NOTE: MIGHT HAVE TO USE PINGFORWARD HALFWAY THROUGH OUR INCREASE OF Y COORDINATE
-      //////////////////////////////////////////////////////////////////////
+      Forward();
 
-      //if travelling in positive y-direction
-      if (current_pos[3] == 0)
-      {
-        current_pos[1] = pingBackward(); //update y coordinate (might not even need this)
-        current_pos[0] = pingLeft(); //updates current x-coordinate
-
-        //veerLeft() and veerRight() keep us driving relatively straight in y-direction
-        //brings robot towards left wall if drifting right
-        if ( current_pos[0] > (10 * numberOfPasses) //comparative value is standard robot width * number of passes
-      {
-        veerLeft(); //new function to steer slightly to the left
-          //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER LEFT FOR A LITTLE AMOUNT
-          //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
-          //TO THIS PART OF THE CODE
-        }
-
-        //brings robot away from left wall if drifting left
-        if ( current_pos[0] < (10 * numberOfPasses)
-      {
-        veerRight(); //new function to steer slightly to the left
-          //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER RIGHT FOR A LITTLE AMOUNT
-          //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
-          //TO THIS PART OF THE CODE
-        }
-      }//end if(current_pos[3] == 0)
-
-      ///////////////////////////////////////////////////////////////////
-      //HAVE TO REWRITE ALL THE ABOVE CODE FOR WHEN WE TRAVEL IN NEGATIVE Y-DIRECTION
-      ///////////////////////////////////////////////////////////////////
-
-      //if travelling in negative y-direction
-      if (current_pos[3] == 1)
-      {
-        current_pos[1] = pingBackward(); //update y coordinate (might not even need this)
-        current_pos[0] = pingRight() + 20; //the added value accounts for width of robot
-
-        //veerLeft() and veerRight() keep us driving relatively straight in y-direction
-        //robot drifting left away from wall
-        if ( current_pos[0] > (10 * numberOfPasses)
-      {
-        veerRight(); //new function to steer slightly to the left
-          //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER LEFT FOR A LITTLE AMOUNT
-          //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
-          //TO THIS PART OF THE CODE
-        }
-
-        //brings drifting towards wall
-        if ( current_pos[0] < (10 * numberOfPasses)
-      {
-        veerLeft(); //new function to steer slightly to the left
-          //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER RIGHT FOR A LITTLE AMOUNT
-          //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
-          //TO THIS PART OF THE CODE
-        }
-      }//end if(current_pos[3] == 1)
 
     } //end while
 
     //if here, robot needs to turn around;
     turnClockwise(180);//function should have a case for 180, where it flips
     //the directionality register in "current_pos"
-    //as well as crabbing left or right based on current_pos[2] (directionality)
-    //to set us up for the next y-direction pass
-    //and increment the num,berOfPasses variable by one
+
+    //if robot is now facing positive y-dir
+    if (current_pos[2] == 0)
+    {
+      while (pingLeft() < (current_pos[0]) + 10) //gets the robvot to move right one robot width
+        moveRight(100);
+    }
+    stop_motors(); //stop robot
+
+
+    else if ((current_pos[2] == 1)
+  {
+    while (pingright() < (current_pos[0]) + 10) //gets the robvot to move right one robot width
+        moveLeft(100);
+    }
+    stop_motors();
+
+    /////////////////////////////////////////////
+    CRITICAL TO OPERATION, DO NOT DELETE!!!!!
+    numberOfPasses = numberOfPasses + 1; //increments the number of passes variable so we keep a standard width from the wall
+
+
   }//end while
 
 }//end function
@@ -1137,7 +1163,7 @@ void searchForCube()
 
 
 
-//ADD ISR TO STOP ROBOT AND BUMP INTO FUNCTION TO CHECK AND PICK UP BLOCK
+
 
 //Checking if the Tesseract is Real or Not using the hall effect sensor
 
@@ -1194,39 +1220,63 @@ void checkCube() {
       }
     }
   }
+}//ADDED THIS TO END CHECKCUBE FUNCTION
 
-  void veerLeft(int speedy, int slower) {
+void veerLeft(int speedy, int slower) {
 
-    int initial_pos = encoder_FrontRightMotor.zero();
-    while ((encoder_FrontRightMotor.getRawPosition() - initial_pos) <= angle) {
-      servo_FrontLeftMotor.writeMicroseconds(1500 + slower); //reverse
-      servo_FrontRightMotor.writeMicroseconds(1500 + speedy); //forward
-      servo_BackLeftMotor.writeMicroseconds(1500 - speedy); //reverse
-      servo_BackRightMotor.writeMicroseconds(1500 + slower); //forward
-    }
+  int initial_pos = encoder_FrontRightMotor.zero();
+  while ((encoder_FrontRightMotor.getRawPosition() - initial_pos) <= angle) {
+    servo_FrontLeftMotor.writeMicroseconds(1500 + slower); //reverse
+    servo_FrontRightMotor.writeMicroseconds(1500 + speedy); //forward
+    servo_BackLeftMotor.writeMicroseconds(1500 - speedy); //reverse
+    servo_BackRightMotor.writeMicroseconds(1500 + slower); //forward
   }
+}
 
 
 
 
 
-  void goHome()
+void goHome()
+{
+  last_known_cube_pos[0] = current_pos[0];
+  last_known_cube_pos[1] = current_pos[1];
+  last_known_cube_pos[2] = current_pos[2];
+
+  // records our current position to last known so we know where to start searching
+
+
+  if (current_pos[2] == 1) //facing negative y
   {
-    last_known_cube_pos[0] = current_pos[0];
-    last_known_cube_pos[1] = current_pos[1];
-    last_known_cube_pos[2] = current_pos[2];
 
-    // records our current position to last known so we know where to start searching
-
-
-    if (current_pos[2] == 1) //facing negative y
+    while (current_pos[0] > home_pos[0] + 20)  //x-dir-> leaving enough room to turn to face the side wall
     {
+      moveRight(100);
+      pingRight(); //updates our x values
+    }
+    stop_motors();
 
-      while (current_pos[0] > home_pos[0] + 20)  //x-dir-> leaving enough room to turn to face the side wall
+    //now right along the side wall
+    while (current_pos[1] > home_pos[1] + 20) { //y-dir -> leaving enough room to start indexing
+      forward(100);
+    }
+    stop_motors(); //have to stop the motors after we move, or we'll continue driving in that direction forever,
+    // else it's good practise
+
+    rotateClockwise(100, 90); //rotates 90 degrees with speedy = 100
+    stop_motors();
+    orientForDropOff(); //orients the robot for indexing and dropping off cubes
+
+
+    if (current_pos[2] == 0) //facing positive y
+    {
+      rotateCounterClockwise(100, 180); //turns to face negative y direction
+
+      while (current_pos[0] > home_pos[0]) x - dir-> leave room for rotation
       {
         moveRight(100);
-        pingRight(); //updates our x values
-      }
+          pingRight(); //updates position
+        }
       stop_motors();
 
       //now right along the side wall
@@ -1238,66 +1288,142 @@ void checkCube() {
 
       rotateClockwise(100, 90); //rotates 90 degrees with speedy = 100
       stop_motors();
-      orientForDropOff(); //orients the robot for indexing and dropping off cubes
-
-
-      if (current_pos[2] == 0) //facing positive y
-      {
-        rotateCounterClockwise(100, 180); //turns to face negative y direction
-
-        while (current_pos[0] > home_pos[0]) x - dir-> leave room for rotation
-        {
-          moveRight(100);
-            pingRight(); //updates position
-          }
-        stop_motors();
-
-        //now right along the side wall
-        while (current_pos[1] > home_pos[1] + 20) { //y-dir -> leaving enough room to start indexing
-          forward(100);
-        }
-        stop_motors(); //have to stop the motors after we move, or we'll continue driving in that direction forever,
-        // else it's good practise
-
-        rotateClockwise(100, 90); //rotates 90 degrees with speedy = 100
-        stop_motors();
-        orientForDropOff();
-      }
-    }//end go home
-
-
-
-
-
-    ////////////////////////////////////////////////*
-    JULIAN ZANE
-    MARCH 25, 2016
-
-    FUNCTION STARTS WHEN BOT IS FACING THE SIDE WALL AND STOPPED
-    RETURNS NOTHING
-    TAKES NO ARGUMENTS
-    EXITS INTO INDEXING FUNCTION WHEN LINE TRACKER READS THE FIRST DARK LINE
-
-    *////////////////////////////////////////////////
-
-    void orientForDropOff()
-    {
-      readLineTrackers(); //taken from Lab04 code
-
-      //CONDITION NEEDS TO CHANGE, BUT BASICALLY THE LOOP RUNS WHILE THE GRIP LINE TRACKER IS LIGHT
-      //MIGHT HAVE TO CHANGE THIS TO A "LATCHED" GLOBAL VARIABLE B/C IT MIGHT OVERSHOOT THE TARGET
-      while ((gripLinetrackerdata.analogRead() < dark_cutoff_value) || (PingLeft() < 5)) //second condition prevents overshoot entirely
-      {
-        moveLeft();
-        PingLeft(); //updates position
-        //NOTE: runing this will change our current x and y positions (they will get reversed), 
-        //but this shouldn't really affect anything, as we're not using the x and y variables directly here
-      }
-        stop_motors();
-
-        index(); //returns into the index code
-        //function still needs to be written
-
+      orientForDropOff();
     }
+  }
+}//end go home
 
+
+
+
+
+////////////////////////////////////////////////*
+JULIAN ZANE
+MARCH 25, 2016
+
+FUNCTION STARTS WHEN BOT IS FACING THE SIDE WALL AND STOPPED
+RETURNS NOTHING
+TAKES NO ARGUMENTS
+EXITS INTO INDEXING FUNCTION WHEN LINE TRACKER READS THE FIRST DARK LINE
+
+*////////////////////////////////////////////////
+
+void orientForDropOff()
+{
+  readLineTrackers(); //taken from Lab04 code
+
+  //CONDITION NEEDS TO CHANGE, BUT BASICALLY THE LOOP RUNS WHILE THE GRIP LINE TRACKER IS LIGHT
+  //MIGHT HAVE TO CHANGE THIS TO A "LATCHED" GLOBAL VARIABLE B/C IT MIGHT OVERSHOOT THE TARGET
+  while ((gripLinetrackerdata.analogRead() < dark_cutoff_value) || (PingLeft() < 5)) //second condition prevents overshoot entirely
+  {
+    moveLeft(100);
+    PingLeft(); //updates position
+    //NOTE: runing this will change our current x and y positions (they will get reversed),
+    //but this shouldn't really affect anything, as we're not using the x and y variables directly here
+  }
+  stop_motors();
+
+  index(); //returns into the index code
+  //function still needs to be written
+}
+
+
+
+
+
+////////////////////////////////////*
+//JULIAN ZANE
+//INITAL CREATION: MARCH 25, 2016
+
+//ROBOT ENTERS FUNCTION WHEN IT DROPS OFF THE CUBE AT HOME AND RETURNS ARM TO "DRIVING POSITION"
+//RETURNS NOTHING
+//TAKES NO ARGUMENTS
+//GENERAL PLAN:
+//-->ROTATE TO MATCH DIRECTION OF DIRECTIONALITY REGISTER
+//-->DRIVE IN X AND Y DIRECTIONS UNTIL CURRENT UPDATES MATCH LAST KNOWN POSITION
+
+*////////////////////////////////////
+
+void backToLastKnownCube()
+{
+  //initially facing negative x-dir
+  if (last_known_cube_pos[2] == 0) //if we were facing positive direction when we picked up the cube
+  {
+    rotateClockwise(100, 90); //90 degrees to face positive y-dir
+    current_pos[2] = 0; //manually reset directionality register var to positive y-dir
+    //now facing correct direction
+
+    //moving in positive x-dir until our current position matches the last known cube pos x-dir
+    while (current_pos[0] < last_known_cube_pos[0])
+    {
+      move_right(100);
+      pingLeft() = curent_pos[0]; //setting x-val to current left untrasonic reading
+    }
+    stop_motors(); //stop moving left
+    //if here, now x coordinate is correct
+
+    //now set the y-direction back to where we were when we picked up the cube (minus some value to get some overlap in searching pattern)
+    while (current_pos[1] < (last_known_cube_pos[1] - 7))
+    {
+      forward(100); //function takes care of driving straight, makes use of veerLeft() and veerRight()
+      pingBack() = current_pos[1];
+    }
+    stop_motors();
+
+    //now we can call search for cube function again and resume out search
+    searchForCube();
+
+  } //end if
+
+  else if (last_known_cube_pos[2] == 1) //if we were facing negative y-dir when we picked up the last cube
+  {
+    rotateCounterClockwise(100, 90); //rotate to negative y- dir
+
+    //now we're facing in the correct direction
+
+
+    current_pos[2] = 1; //manually reset directionality register var to positive y-dir
+
+    //now set the y-direction back to where we were when we picked up the cube (minus some value to get some overlap in searching pattern)
+    while (current_pos[1] < (last_known_cube_pos[1] + 7))
+    {
+      backward(100); //function takes care of driving straight, makes use of veerLeft() and veerRight()
+      pingFront() = current_pos[1];
+    }
+    stop_motors();
+
+    //moving in positive x-dir until our current position matches the last known cube pos x-dir
+    while (current_pos[0] < last_known_cube_pos[0])
+    {
+      move_left(100);
+      pingRight() = curent_pos[0]; //setting x-val to current left untrasonic reading
+    }
+    stop_motors(); //stop moving left
+    //if here, now x coordinate is correct
+
+
+
+    //now we can call search for cube function again and resume out search
+    searchForCube();
+
+
+
+  }//end else if
+
+
+}//end backtolastknowncube()
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+NOTE FOR Justin:
+
+ADD TO moveLeft() AND moveRight() CODE TO KEEP A SET DISTANCE AWAY FROM THE FRONT AND BACK OF ROBOT
+SET DISTANCE BEING WHATEVER DISTANCE THE ROBOT ENTERS THE FUNCTION WITH
+ADD SIMILAR CODE AS IN FOWARD() TO REVERSE() TO ALLOW THE ROBOT TO MOVE BACKWARD IN A "STRAIGHT" LINE
 
