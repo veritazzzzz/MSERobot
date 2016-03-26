@@ -1237,7 +1237,8 @@ void checkCube() {
       // else it's good practise
 
       rotateClockwise(100, 90); //rotates 90 degrees with speedy = 100
-
+      stop_motors();
+      orientForDropOff(); //orients the robot for indexing and dropping off cubes
 
 
       if (current_pos[2] == 0) //facing positive y
@@ -1259,7 +1260,44 @@ void checkCube() {
         // else it's good practise
 
         rotateClockwise(100, 90); //rotates 90 degrees with speedy = 100
+        stop_motors();
+        orientForDropOff();
       }
     }//end go home
+
+
+
+
+
+    ////////////////////////////////////////////////*
+    JULIAN ZANE
+    MARCH 25, 2016
+
+    FUNCTION STARTS WHEN BOT IS FACING THE SIDE WALL AND STOPPED
+    RETURNS NOTHING
+    TAKES NO ARGUMENTS
+    EXITS INTO INDEXING FUNCTION WHEN LINE TRACKER READS THE FIRST DARK LINE
+
+    *////////////////////////////////////////////////
+
+    void orientForDropOff()
+    {
+      readLineTrackers(); //taken from Lab04 code
+
+      //CONDITION NEEDS TO CHANGE, BUT BASICALLY THE LOOP RUNS WHILE THE GRIP LINE TRACKER IS LIGHT
+      //MIGHT HAVE TO CHANGE THIS TO A "LATCHED" GLOBAL VARIABLE B/C IT MIGHT OVERSHOOT THE TARGET
+      while ((gripLinetrackerdata.analogRead() < dark_cutoff_value) || (PingLeft() < 5)) //second condition prevents overshoot entirely
+      {
+        moveLeft();
+        PingLeft(); //updates position
+        //NOTE: runing this will change our current x and y positions (they will get reversed), 
+        //but this shouldn't really affect anything, as we're not using the x and y variables directly here
+      }
+        stop_motors();
+
+        index(); //returns into the index code
+        //function still needs to be written
+
+    }
 
 
