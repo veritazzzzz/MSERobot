@@ -1415,6 +1415,52 @@ void backToLastKnownCube()
 
 
 
+///////////////////////////////////////////////////**
+//JULIAN ZANE
+//INITIAL CREATION: MARCH 25, 2016
+
+//FUNCTION RETURNS NOTHING
+//FUNCTION TAKES NO ARGUMENT
+//DRIVES BACKWARDS TO THE EDGE OF THE TRACK AND TURNS AROUND, DUMPING THE CUBE OUTSIDE OF THE TRACK
+//THEN RETURNING TO IT'S LAST KNOWN POSITION
+//--> RESUSE CODE FOR THIS PART
+//ROBOT ENTERS THIS FUNCTION STOPPED AND WITH A CUBE READY TO BE PICKED UP
+
+**////////////////////////////////////////////////////
+
+void disposeCube()
+{
+  pickUpCube(); //FUNCTION STILL NEEDS TO BE WRITTEN TO MOVE ARM MOVEMENTS
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //MIGHT HAVE TO REVERSE A LITTLE BEFORE WE TURN
+  //COME BACK TO THIS AND CHECK
+  if (current_pos[2] == 0) //positive y-dir
+  {
+    rotateCounterClockwise(100, 180);//CCW to avoid hitting other cubes
+    while (pingForward > 25)
+    {
+      forward(200);
+    }
+    stop_motors();
+    Get_rid_of_cube(); //NEEDS TO BE WRITTEN
+    //HARD CODE IN ARM MOVEMENTS TO EXTEND AND DROP CUBE FROM HEIGHT FOR DRAMATIC EFFECT
+  }//end if
+
+  else if (current_pos[2] == 1) //negative y-dir
+  {
+    rotateClockwise(100, 180);//CW to avoid hitting other cubes
+    while (pingForward > 25)
+    {
+      forward(200);
+    }
+    stop_motors();
+    Get_rid_of_cube(); //NEEDS TO BE WRITTEN
+    //HARD CODE IN ARM MOVEMENTS TO EXTEND AND DROP CUBE FROM HEIGHT FOR DRAMATIC EFFECT
+  }//end else if
+
+}//end disposeCube()
+
 
 
 
