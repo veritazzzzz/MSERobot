@@ -59,17 +59,17 @@ const int ci_Charlieplex_LED2 = 5;
 const int ci_Charlieplex_LED3 = 6;
 const int ci_Charlieplex_LED4 = 7;
 const int ci_Mode_Button = 7;
-<<<<<<< HEAD
+<<< <<< < HEAD
 const int ci_Right_Motor = 8;
 const int ci_Left_Motor = 9;
 const int ci_Arm_Motor = 10;                                      //place the port pins here (ultrasonic, motors)
-=======
-const int ci_FrontRight_Motor = 2;
+== == == =
+  const int ci_FrontRight_Motor = 2;
 const int ci_FrontLeft_Motor = 3;
 const int ci_BackRight_Motor = 4;
 const int ci_BackLeft_Motor = 5;
 const int ci_Arm_Motor = 10;
->>>>>>> origin/master
+>>> >>> > origin / master
 const int ci_Grip_Motor = 11;
 const int ci_Motor_Enable_Switch = 12;
 const int ci_Right_Line_Tracker = A0;
@@ -78,9 +78,9 @@ const int ci_Left_Line_Tracker = A2;
 const int ci_Light_Sensor = A3;
 const int ci_I2C_SDA = A4;         // I2C data = white
 const int ci_I2C_SCL = A5;         // I2C clock = yellow
-<<<<<<< HEAD
-=======
-const int ci_Front_Ultrasonic_Ping = 13;
+<<< <<< < HEAD
+== == == =
+  const int ci_Front_Ultrasonic_Ping = 13;
 const int ci_Back_Ultrasonic_Ping = 14;
 const int ci_Left_Ultrasonic_Ping = 15;
 const int ci_Right_Ultrasonic_Ping = 16;
@@ -90,7 +90,7 @@ const int ci_Right_Ultrasonic_Ping = 16;
 int ISRPin = 13;
 
 
->>>>>>> origin/master
+>>> >>> > origin / master
 
 // Charlieplexing LED assignments
 const int ci_Heartbeat_LED = 1;
@@ -235,15 +235,15 @@ int numberOfPasses; //keeps track of how many times we've driven in the y-direct
 
 
 void setup() {
-<<<<<<< HEAD
-=======
-  ///////////////////////
-  //setting up ISR
-  //////////////////////
-  pinMode(ISRPin, OUTPUT);
- // attachInterrupt(digitalPinTOInterrupt(ISRPin), CheckCube(), RISING); //setting up ISR from LOW to HIGH on ISRPin
+  <<< <<< < HEAD
+  == == == =
+    ///////////////////////
+    //setting up ISR
+    //////////////////////
+    pinMode(ISRPin, OUTPUT);
+  // attachInterrupt(digitalPinTOInterrupt(ISRPin), CheckCube(), RISING); //setting up ISR from LOW to HIGH on ISRPin
 
->>>>>>> origin/master
+  >>> >>> > origin / master
 
   pauseHere = true;
 
@@ -443,15 +443,15 @@ void loop()
 
           if (bt_Motors_Enabled)
           {
-<<<<<<< HEAD
-=======
-            //actual code goes in here
-            
-            
-            forward();
+            <<< <<< < HEAD
+            == == == =
+              //actual code goes in here
+
+
+              forward();
             delay(1000);
 
->>>>>>> origin/master
+            >>> >>> > origin / master
 
           }
 
@@ -1141,70 +1141,125 @@ void searchForCube()
 
 //Checking if the Tesseract is Real or Not using the hall effect sensor
 
-  void checkCube(){
-  int raw = analogRead(0);  //**will need to change the pin number 
-  //Hall Effect range might be from 0-1024, will have to test this 
-  //and see the values that the 
+void checkCube() {
+  int raw = analogRead(0);  //**will need to change the pin number
+  //Hall Effect range might be from 0-1024, will have to test this
+  //and see the values that the
 
-  // If needed to debug/see the readings uncomment this part 
+  // If needed to debug/see the readings uncomment this part
   //  Serial.print("Raw Flux Reading: ");
   //  Serial.println(raw);
-  
-   long magneticFlux = raw - NOFIELD;  
-    // Make a global variable called "NOFIELD" and make it the value that the
-    // hall effect detects when there is no field
 
-    if (magneticFlux == 0){
-    // Input code to dipose of the tesseract 
+  long magneticFlux = raw - NOFIELD;
+  // Make a global variable called "NOFIELD" and make it the value that the
+  // hall effect detects when there is no field
+
+  if (magneticFlux == 0) {
+    // Input code to dipose of the tesseract
     // Possibly call the pickup function and drive to home position and dispose?
     // void PickUpTesseract();
-    
-    }
 
-    else{
-    // Return to home position and callthe indexing function
-    // void PickUpTesseract(); 
-    // void goHome(); 
-}
-
-//rotate counterclock wise with the speed and angle
-void rotateCounterClockwise(int speedy, int angle) {
-  //change and test numbers accordingly
-
-  // zero the front right motor only, then count the number of ticks 
-  int initial_pos = encoder_FrontRightMotor.zero();  
-
-  //find the difference of the raw position and the zero position, 
-  // will need to test for values and will need to change the arbitary one 
-  while ((encoder_FrontRightMotor.getRawPosition() - initial_pos) <= angle){
-  servo_FrontLeftMotor.writeMicroseconds(1500 - speedy); //reverse
-  servo_FrontRightMotor.writeMicroseconds(1500 + speedy); //forward
-  servo_BackLeftMotor.writeMicroseconds(1500 - speedy); //reverse
-  servo_BackRightMotor.writeMicroseconds(1500 + speedy); //forward
   }
 
-  // if the robot rotates 180 degrees, change the directionality register to 
-  // the opposite of whatever it currently is 
-  if (angle == 180){
-      if (current_pos[2] == 1){
+  else {
+    // Return to home position and callthe indexing function
+    // void PickUpTesseract();
+    // void goHome();
+  }
+
+  //rotate counterclock wise with the speed and angle
+  void rotateCounterClockwise(int speedy, int angle) {
+    //change and test numbers accordingly
+
+    // zero the front right motor only, then count the number of ticks
+    int initial_pos = encoder_FrontRightMotor.zero();
+
+    //find the difference of the raw position and the zero position,
+    // will need to test for values and will need to change the arbitary one
+    while ((encoder_FrontRightMotor.getRawPosition() - initial_pos) <= angle) {
+      servo_FrontLeftMotor.writeMicroseconds(1500 - speedy); //reverse
+      servo_FrontRightMotor.writeMicroseconds(1500 + speedy); //forward
+      servo_BackLeftMotor.writeMicroseconds(1500 - speedy); //reverse
+      servo_BackRightMotor.writeMicroseconds(1500 + speedy); //forward
+    }
+
+    // if the robot rotates 180 degrees, change the directionality register to
+    // the opposite of whatever it currently is
+    if (angle == 180) {
+      if (current_pos[2] == 1) {
         current_pos[2] = 0;
       }
       else if (current_pos[2] == 0{
-        current_pos[2] = 1;
+      current_pos[2] = 1;
       }
+    }
   }
-}
 
-void veerLeft(int speedy, int slower){
-  
-int initial_pos = encoder_FrontRightMotor.zero();  
-  while ((encoder_FrontRightMotor.getRawPosition() - initial_pos) <= angle){
-  servo_FrontLeftMotor.writeMicroseconds(1500 + slower); //reverse
-  servo_FrontRightMotor.writeMicroseconds(1500 + speedy); //forward
-  servo_BackLeftMotor.writeMicroseconds(1500 - speedy); //reverse
-  servo_BackRightMotor.writeMicroseconds(1500 + slower); //forward
+  void veerLeft(int speedy, int slower) {
+
+    int initial_pos = encoder_FrontRightMotor.zero();
+    while ((encoder_FrontRightMotor.getRawPosition() - initial_pos) <= angle) {
+      servo_FrontLeftMotor.writeMicroseconds(1500 + slower); //reverse
+      servo_FrontRightMotor.writeMicroseconds(1500 + speedy); //forward
+      servo_BackLeftMotor.writeMicroseconds(1500 - speedy); //reverse
+      servo_BackRightMotor.writeMicroseconds(1500 + slower); //forward
+    }
   }
-}
 
+
+
+
+
+  void goHome()
+  {
+    last_known_cube_pos[0] = current_pos[0];
+    last_known_cube_pos[1] = current_pos[1];
+    last_known_cube_pos[2] = current_pos[2];
+
+    // records our current position to last known so we know where to start searching
+
+
+    if (current_pos[2] == 1) //facing negative y
+    {
+
+      while (current_pos[0] > home_pos[0] + 20)  //x-dir-> leaving enough room to turn to face the side wall
+      {
+        moveRight(100);
+        pingRight(); //updates our x values
+      }
+      stop_motors();
+
+      //now right along the side wall
+      while (current_pos[1] > home_pos[1] + 20) { //y-dir -> leaving enough room to start indexing
+        forward(100);
+      }
+      stop_motors(); //have to stop the motors after we move, or we'll continue driving in that direction forever,
+      // else it's good practise
+
+      rotateClockwise(100, 90); //rotates 90 degrees with speedy = 100
+
+
+
+      if (current_pos[2] == 0) //facing positive y
+      {
+        rotateCounterClockwise(100, 180); //turns to face negative y direction
+
+        while (current_pos[0] > home_pos[0]) x - dir-> leave room for rotation
+        {
+          moveRight(100);
+            pingRight(); //updates position
+          }
+        stop_motors();
+
+        //now right along the side wall
+        while (current_pos[1] > home_pos[1] + 20) { //y-dir -> leaving enough room to start indexing
+          forward(100);
+        }
+        stop_motors(); //have to stop the motors after we move, or we'll continue driving in that direction forever,
+        // else it's good practise
+
+        rotateClockwise(100, 90); //rotates 90 degrees with speedy = 100
+      }
+    }//end go home
 
 
