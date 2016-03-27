@@ -218,6 +218,9 @@ const int sideLength = 200; //total side length of track in cm
 
 //for pinging:
 int cmFront, cmBack, cmLeft, cmRight; //variables hold distances of ultrasonic sensors
+int rightDuration, leftDuration, frontDuration, backDuration; //used to send a length of pings out
+
+const int delayTime = 10; //milisecond time
 
 //for checking cube:
 const int NOFIELD = 0; //have to change this
@@ -455,7 +458,7 @@ void loop()
             //actual code goes in here
 
 
-            forward(200); //fopr testing purposes
+            forward(200); //for testing purposes
             delay(1000);
 
 
@@ -1014,8 +1017,8 @@ void pingFront() { //took "int delayTime" out of argument list
   delayMicroseconds(2);
   digitalWrite(ci_Front_Ultrasonic_Ping, HIGH); //keep in mind name for ultrasonic sensor might be different for other people
   //delayMicroseconds(delayTime); //used delay time so user could insert how long the ping is used for?? While it is driving along the left wall??
-  int durationFront = pulseIn(ci_Front_Ultrasonic_Ping, HIGH);
-  cmFront = microsecondsToCentimeters(durationFront);
+  int frontDuration = pulseIn(ci_Front_Ultrasonic_Ping, HIGH);
+  cmFront = microsecondsToCentimeters(frontDuration);
   Serial.print(cmFront);
   Serial.print("cm");
   Serial.println();
@@ -1027,9 +1030,9 @@ void pingBack() {
   digitalWrite(ci_Back_Ultrasonic_Ping, LOW); //giving a short pulse before hand to ensure a clean high pulse
   delayMicroseconds(2);
   digitalWrite(ci_Back_Ultrasonic_Ping, HIGH); //keep in mind name for ultrasonic sensor might be different for other people
-  //delayMicroseconds(delayTime); //used delay time so user could insert how long the ping is used for?? While it is driving along the left wall??
-  int durationBack = pulseIn(ci_Back_Ultrasonic_Ping, HIGH); // declared in this scope?
-  cmBack = microsecondsToCentimeters(durationBack);
+  delayMicroseconds(delayTime); //used delay time so user could insert how long the ping is used for?? While it is driving along the left wall??
+  backDuration = pulseIn(ci_Back_Ultrasonic_Ping, HIGH);
+  cmBack = microsecondsToCentimeters(leftDuration);
   Serial.print(cmBack);
   Serial.print("cm");
   Serial.println();
@@ -1038,17 +1041,43 @@ void pingBack() {
 
 void pingLeft() {
 
+  digitalWrite(ci_Left_Ultrasonic_Ping, LOW); //giving a short pulse before hand to ensure a clean high pulse
+  delayMicroseconds(2);
+  digitalWrite(ci_Left_Ultrasonic_Ping, HIGH); //keep in mind name for ultrasonic sensor might be different for other people
+  delayMicroseconds(delayTime); //used delay time so user could insert how long the ping is used for?? While it is driving along the left wall??
+  leftDuration = pulseIn(ci_Left_Ultrasonic_Ping, HIGH);
+  cmLeft = microsecondsToCentimeters(leftDuration);
+  Serial.print(cmLeft);
+  Serial.print("cm");
+  Serial.println();
 
 }
+
+//Globals Needed for: rightDuration, rightDistance, cm (to debug) and delaytime
+//may need to get rid of delay time and change it to a small #? 
+// comment in the code 
 
 void pingRight() {
-
+  digitalWrite(ci_Right_Ultrasonic_Ping, LOW); //giving a short pulse before hand to ensure a clean high pulse
+  delayMicroseconds(2);
+  digitalWrite(ci_Right_Ultrasonic_Ping, HIGH); //keep in mind name for ultrasonic sensor might be different for other people
+  delayMicroseconds(delayTime); //used delay time so user could insert how long the ping is used for?? While it is driving along the left wall??
+  rightDuration = pulseIn(ci_Right_Ultrasonic_Ping, HIGH);
+  cmRight = microsecondsToCentimeters(rightDuration);
+  Serial.print(cmRight);
+  Serial.print("cm");
+  Serial.println();
 }
 
-//used to convert microseconds (the data inputted) into centimeters so distances can be better gauged when pinging
+//ci_Right_Ultrasonic_Ping is the constant integer pin number
+//for the respective ultrasonic sensor 
+
 long microsecondsToCentimeters(long microseconds) {
   return microseconds / 29 / 2;
 }
+
+//used to convert microseconds (the data inputted) into centimeters so distances can be better gauged when pinging
+
 
 
 //////////////////////////////////////
