@@ -1560,3 +1560,61 @@ void veerLeft(int speedy, int xDistance) {
   }
 }
 
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//JULIAN'S NOTES: 
+
+  //FUNCTION NEEDS TO BE MORE GENERAL:
+    //-->INSTEAD OF USING VARIABLES FROM OUR LAST KNOWN POSITION ARRAY
+         //TRY STORING OUR POSITION WHEN WE ENTER THIS FUNCTION INTO OUR
+         //CURRENT POSITION ARRAY, THEN MOVE LEFT OR RIGHT A CERTAIN SPEED 
+         //WHILE USING A SCHMIDTT TRIGGER TO KEEP THE DISTANCE FROM THE FRONT OR
+         //BACK WALL CONSTANT
+          //--> TRY USING A FUNCTION ARGUMENT TO SET WHETHER WE MONITOR THE FRONT OR BACK ULTRASONIC
+
+//March 27 2015
+//Gamaliel Obinyan
+//Added moveLeft() and moveRight(), a lot of caliberation still needs to be done 
+
+
+void moveLeft(int slidingSpeed, int horizontalDistance)
+//lastCubePosition is where we dropped off the very last cube 
+//slidingSpeed is what we caliberate as the best speed move sideways
+leftDistance = horizontalDistance;
+//hor
+{
+  pingLeft();
+  while(lastCubePosition - 3 < leftDistance) //"-3" indicates the the next postion for a cub; we can measure the distance; wea can also change the greater than to less than based on the orientation
+  {
+    servo_FrontLeftMotor.writeMicroseconds(1500 - slidingSpeed);
+    servo_FrontRightMotor.writeMicroseconds(1500 + slidingSpeed);
+    servo_BackLeftMotor.writeMicroseconds(1500 + slidingSpeed);
+    servo_BackRightMotor.writeMicroseconds(1500 - slidingSpeed);
+  }
+}
+
+void moveRight(int slidingSpeed, int horizontalDistance)
+//lastCubePosition is where we dropped off the very last cube 
+//slidingSpeed is what we caliberate as the best speed move sideways
+leftDistance = horizontalDistance;
+//hor
+{
+  pingLeft();
+  while(lastCubePosition - 3 < leftDistance) //"-3" indicates the the next postion for a cub; we can measure the distance; wea can also change the greater than to less than based on the orientation
+  {
+    servo_FrontLeftMotor.writeMicroseconds(1500 + slidingSpeed);
+    servo_FrontRightMotor.writeMicroseconds(1500 - slidingSpeed);
+    servo_BackLeftMotor.writeMicroseconds(1500 - slidingSpeed);
+    servo_BackRightMotor.writeMicroseconds(1500 + slidingSpeed);
+  }
+}
+
+
+
+
