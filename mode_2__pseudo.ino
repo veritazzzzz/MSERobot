@@ -1,3 +1,5 @@
+
+/*
 delay( 20-ish seconds);
 
 home pos = current pos;
@@ -33,5 +35,7 @@ if(cube found) // hall effect senses something
 
 
 }
+
+*/
 
 
