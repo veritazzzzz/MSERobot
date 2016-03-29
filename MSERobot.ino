@@ -507,7 +507,7 @@ void loop()
         /*************************************************************************************/
 
 
-
+    
 
 
 
@@ -957,7 +957,7 @@ void forward(int speed) {
     //brings robot towards left wall if drifting right
     if ( current_pos[0] > (10 * numberOfPasses)) //comparative value is standard robot width * number of passes
     {
-      veerLeft(100); //new function to steer slightly to the left
+      veerLeft(150, current_pos[0]); //new function to steer slightly to the left
       //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER LEFT FOR A LITTLE AMOUNT
       //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
       //TO THIS PART OF THE CODE
@@ -966,7 +966,7 @@ void forward(int speed) {
     //brings robot away from left wall if drifting left
     if ( current_pos[0] < (10 * numberOfPasses))
     {
-      veerRight();
+      veerRight(150, current_pos[0]);
       
       //veerRight(); //new function to steer slightly to the left
       //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER RIGHT FOR A LITTLE AMOUNT
@@ -1001,7 +1001,7 @@ void forward(int speed) {
     if ( current_pos[0] > (10 * numberOfPasses))
     {
       
-      veerRight();
+      veerRight(150, current_pos[0]);
       
       //FUNCTION NOT WRITTEN YET, AS OF MARCH 27, 2016
       //veerRight(100); //new function to steer slightly to the left
@@ -1013,7 +1013,7 @@ void forward(int speed) {
     //brings drifting towards wall
     if ( current_pos[0] < (10 * numberOfPasses))
     {
-      veerLeft(100); //new function to steer slightly to the left
+      veerLeft(100, current_pos[0]); //new function to steer slightly to the left
       //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER RIGHT FOR A LITTLE AMOUNT
       //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
       //TO THIS PART OF THE CODE
@@ -1615,34 +1615,54 @@ void disposeCube()
 
 
 
-
+/////////////////////////////////////
+//NOTE: I'm pretty sure we need to pass currrent_pos[0] as xDistance (JULIAN ZANE MARCH 29, 2016)
 void veerRight(int speedy, int xDistance) {
-  int slower = speedy - 50;
-  int leftDistance = xDistance + 5; // may need to change the +3
-  // for veerLeft, the right side motors are operating faster than the left side
-  // this is done until we get to our set x distance away + a small value (2-3cm)
-  // this is used to drive straight and correct the drift for the omniwheels
-  pingLeft();
-  while (current_pos[0] < leftDistance) {
-    servo_FrontLeftMotor.writeMicroseconds(1500 + speedy); // the difference in the veerRight and left
-    servo_FrontRightMotor.writeMicroseconds(1500 + slower); // is the speed of the wheels and the
-    servo_BackLeftMotor.writeMicroseconds(1500 + speedy); // distance of the left wall to the ultrasonic
-    servo_BackRightMotor.writeMicroseconds(1500 + slower);
-  }
-}
-
-void veerLeft(int speedy, int xDistance) {
+  Serial.println("veerRight");
   int slower = speedy - 50;
   int leftDistance = xDistance + 3; // may need to change the +3
   // for veerLeft, the right side motors are operating faster than the left side
   // this is done until we get to our set x distance away + a small value (2-3cm)
   // this is used to drive straight and correct the drift for the omniwheels
+  
+  
+  //conditional loop checks to make sure we aren't using false zero values as current positions
   pingLeft();
+  current_pos[0] = cmLeft;
+  while (cmLeft == 0)
+  {
+   pingLeft(); 
+  }
+  current_pos[0] = cmLeft;
+  while (current_pos[0] < leftDistance) {
+    servo_FrontLeftMotor.writeMicroseconds(1500 + speedy); // the difference in the veerRight and left
+    servo_FrontRightMotor.writeMicroseconds(1500 - slower); // is the speed of the wheels and the
+    servo_BackLeftMotor.writeMicroseconds(1500 + speedy); // distance of the left wall to the ultrasonic
+    servo_BackRightMotor.writeMicroseconds(1500 - slower);
+  }
+}
+
+void veerLeft(int speedy, int xDistance) {
+  Serial.println("veerLeft");
+  int slower = speedy - 50;
+  int leftDistance = xDistance + 3; // may need to change the +3
+  // for veerLeft, the right side motors are operating faster than the left side
+  // this is done until we get to our set x distance away + a small value (2-3cm)
+  // this is used to drive straight and correct the drift for the omniwheels
+  
+   //conditional loop checks to make sure we aren't using false zero values as current positions
+  pingLeft();
+  current_pos[0] = cmLeft;
+  while (cmLeft == 0)
+  {
+   pingLeft(); 
+  }
+  current_pos[0] = cmLeft;
   while (current_pos[0] < leftDistance) {
     servo_FrontLeftMotor.writeMicroseconds(1500 + slower);
-    servo_FrontRightMotor.writeMicroseconds(1500 + speedy);
+    servo_FrontRightMotor.writeMicroseconds(1500 - speedy);
     servo_BackLeftMotor.writeMicroseconds(1500 + slower);
-    servo_BackRightMotor.writeMicroseconds(1500 + speedy);
+    servo_BackRightMotor.writeMicroseconds(1500 - speedy);
   }
 }
 
