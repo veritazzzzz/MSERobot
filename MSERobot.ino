@@ -31,7 +31,7 @@ I2CEncoder encoder_GripMotor;
 
 // Uncomment keywords to enable debugging output
 
-#define DEBUG_MODE_DISPLAY
+//#define DEBUG_MODE_DISPLAY
 //#define DEBUG_MOTORS
 //#define DEBUG_LINE_TRACKERS
 //#define DEBUG_ENCODERS
@@ -42,7 +42,6 @@ I2CEncoder encoder_GripMotor;
 boolean bt_Motors_Enabled = true;
 
 //port pin constants
-const int ci_Ultrasonic_Ping = 2;   //input plug
 const int ci_Mode_Button = 7;                                     //place the port pins here (ultrasonic, motors)
 const int ci_FrontRight_Motor = 8;
 const int ci_FrontLeft_Motor = 9;
@@ -64,7 +63,7 @@ const int ci_I2C_SDA = A4;         // I2C data = white
 const int ci_I2C_SCL = A5;         // I2C clock = yellow
 //<<< <<< < HEAD
 //== == == =
-const int ci_Front_Ultrasonic_Ping = 13;
+const int ci_Front_Ultrasonic_Ping = 2;
 const int ci_Back_Ultrasonic_Ping = 14;
 const int ci_Left_Ultrasonic_Ping = 15;
 const int ci_Right_Ultrasonic_Ping = 16;
@@ -451,18 +450,12 @@ void loop()
             /*************************************************************************************/
 
 
-          if (bt_Motors_Enabled)
-          {
+          
+           pingFront();
+           delay(200);
 
 
-            //actual code goes in here
-
-
-            forward(200); //for testing purposes
-            delay(1000);
-
-
-          }
+          
 
 #ifdef DEBUG_MOTORS
           Serial.print("Motors: Default: ");
@@ -1013,11 +1006,11 @@ void stop_motors() {
 
 //allow the user to ping the front ultrasonic sensor
 void pingFront() { //took "int delayTime" out of argument list
-  digitalWrite(ci_Front_Ultrasonic_Ping, LOW); //giving a short pulse before hand to ensure a clean high pulse
-  delayMicroseconds(2);
-  digitalWrite(ci_Front_Ultrasonic_Ping, HIGH); //keep in mind name for ultrasonic sensor might be different for other people
+  digitalWrite(ci_Front_Ultrasonic_Ping, HIGH); //giving a short pulse before hand to ensure a clean high pulse
+  delayMicroseconds(10);
+  digitalWrite(ci_Front_Ultrasonic_Ping, LOW); //keep in mind name for ultrasonic sensor might be different for other people
   //delayMicroseconds(delayTime); //used delay time so user could insert how long the ping is used for?? While it is driving along the left wall??
-  int frontDuration = pulseIn(ci_Front_Ultrasonic_Ping, HIGH);
+  int frontDuration = pulseIn(ci_Front_Ultrasonic_Data, HIGH,10000);
   cmFront = microsecondsToCentimeters(frontDuration);
   Serial.print(cmFront);
   Serial.print("cm");
@@ -1582,7 +1575,7 @@ void veerLeft(int speedy, int xDistance) {
 //Gamaliel Obinyan
 //Added moveLeft() and moveRight(), a lot of caliberation still needs to be done 
 
-
+/*
 void moveLeft(int slidingSpeed, int horizontalDistance)
 //lastCubePosition is where we dropped off the very last cube 
 //slidingSpeed is what we caliberate as the best speed move sideways
@@ -1615,6 +1608,6 @@ leftDistance = horizontalDistance;
   }
 }
 
-
+*/
 
 
