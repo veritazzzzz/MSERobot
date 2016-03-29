@@ -48,9 +48,9 @@ const int ci_FrontLeft_Motor = 9;
 const int ci_BackRight_Motor = 10;
 const int ci_BackLeft_Motor = 11;
 const int ci_Front_Ultrasonic_Data = 3;
-const int ci_Back_Ultrasonic_Data = 4;
-const int ci_Left_Ultrasonic_Data = 5;
-const int ci_Right_Ultrasonic_Data = 6;
+const int ci_Back_Ultrasonic_Data = 9;
+const int ci_Left_Ultrasonic_Data = 20;
+const int ci_Right_Ultrasonic_Data = 21;
 
 
 const int ci_Grip_Motor = 11;
@@ -64,9 +64,9 @@ const int ci_I2C_SCL = A5;         // I2C clock = yellow
 //<<< <<< < HEAD
 //== == == =
 const int ci_Front_Ultrasonic_Ping = 2;
-const int ci_Back_Ultrasonic_Ping = 14;
-const int ci_Left_Ultrasonic_Ping = 15;
-const int ci_Right_Ultrasonic_Ping = 16;
+const int ci_Back_Ultrasonic_Ping = 8;
+const int ci_Left_Ultrasonic_Ping = 25;
+const int ci_Right_Ultrasonic_Ping = 26;
 
 
 //might have to go on seperate board
@@ -393,7 +393,7 @@ void loop()
 {
 
   
-  Serial.println("loop");
+  
 
   if ((millis() - ul_3_Second_timer) > 3000)
   {
@@ -490,8 +490,9 @@ void loop()
 
           
            pingFront();
-           delay(200);
-
+           delay(500);
+           pingBack();
+           delay(500);
 
           
 
@@ -1047,8 +1048,9 @@ void pingFront() { //took "int delayTime" out of argument list
   digitalWrite(ci_Front_Ultrasonic_Ping, HIGH); //giving a short pulse before hand to ensure a clean high pulse
   delayMicroseconds(10);
   digitalWrite(ci_Front_Ultrasonic_Ping, LOW); //keep in mind name for ultrasonic sensor might be different for other people
-  //delayMicroseconds(delayTime); //used delay time so user could insert how long the ping is used for?? While it is driving along the left wall??
-  int frontDuration = pulseIn(ci_Front_Ultrasonic_Data, HIGH,10000);
+
+  frontDuration = pulseIn(ci_Front_Ultrasonic_Data, HIGH,10000);
+  
   cmFront = microsecondsToCentimeters(frontDuration);
   Serial.print("Front distance = ");
   Serial.print(cmFront);
@@ -1059,12 +1061,13 @@ void pingFront() { //took "int delayTime" out of argument list
 
 void pingBack() {
 
-  digitalWrite(ci_Back_Ultrasonic_Ping, LOW); //giving a short pulse before hand to ensure a clean high pulse
-  delayMicroseconds(2);
-  digitalWrite(ci_Back_Ultrasonic_Ping, HIGH); //keep in mind name for ultrasonic sensor might be different for other people
-  delayMicroseconds(delayTime); //used delay time so user could insert how long the ping is used for?? While it is driving along the left wall??
-  backDuration = pulseIn(ci_Back_Ultrasonic_Ping, HIGH);
-  cmBack = microsecondsToCentimeters(leftDuration);
+  digitalWrite(ci_Back_Ultrasonic_Ping, HIGH); //giving a short pulse before hand to ensure a clean high pulse
+  delayMicroseconds(10);
+  digitalWrite(ci_Back_Ultrasonic_Ping, LOW); //keep in mind name for ultrasonic sensor might be different for other people
+  pinMode(ci_Back_Ultrasonic_Data, INPUT);
+  backDuration = pulseIn(ci_Back_Ultrasonic_Data, HIGH, 10000);
+  
+  cmBack = microsecondsToCentimeters(backDuration);
   Serial.print("Back distance = ");
   Serial.print(cmBack);
   Serial.print("cm");
