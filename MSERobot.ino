@@ -1050,6 +1050,7 @@ void pingFront() { //took "int delayTime" out of argument list
   //delayMicroseconds(delayTime); //used delay time so user could insert how long the ping is used for?? While it is driving along the left wall??
   int frontDuration = pulseIn(ci_Front_Ultrasonic_Data, HIGH,10000);
   cmFront = microsecondsToCentimeters(frontDuration);
+  Serial.print("Front distance = ");
   Serial.print(cmFront);
   Serial.print("cm");
   Serial.println();
@@ -1064,6 +1065,7 @@ void pingBack() {
   delayMicroseconds(delayTime); //used delay time so user could insert how long the ping is used for?? While it is driving along the left wall??
   backDuration = pulseIn(ci_Back_Ultrasonic_Ping, HIGH);
   cmBack = microsecondsToCentimeters(leftDuration);
+  Serial.print("Back distance = ");
   Serial.print(cmBack);
   Serial.print("cm");
   Serial.println();
@@ -1078,6 +1080,7 @@ void pingLeft() {
   delayMicroseconds(delayTime); //used delay time so user could insert how long the ping is used for?? While it is driving along the left wall??
   leftDuration = pulseIn(ci_Left_Ultrasonic_Ping, HIGH);
   cmLeft = microsecondsToCentimeters(leftDuration);
+  Serial.print("Left distance = ");
   Serial.print(cmLeft);
   Serial.print("cm");
   Serial.println();
@@ -1095,6 +1098,7 @@ void pingRight() {
   delayMicroseconds(delayTime); //used delay time so user could insert how long the ping is used for?? While it is driving along the left wall??
   rightDuration = pulseIn(ci_Right_Ultrasonic_Ping, HIGH);
   cmRight = microsecondsToCentimeters(rightDuration);
+  Serial.print("Right distance = ");
   Serial.print(cmRight);
   Serial.print("cm");
   Serial.println();
