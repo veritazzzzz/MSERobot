@@ -356,17 +356,19 @@ Serial.println("what the fuck");
    b_HighByte = EEPROM.read(ci_Right_Motor_Offset_Address_H);
    ui_Right_Motor_Offset = word(b_HighByte, b_LowByte);
    */
+   
+   
+   
+   
+   ///////////////////////////////////////////////
+   //ADDING THIS TO SEE IF THE CODE IS BEING KEPT IN THE SETUP FUNCTION
+   Serial.println("code reaching this point");
 }
 
 void loop()
 {
   
   Serial.println("loop");
-  
-   pingFront();
-        pingBack();
-        pingLeft();
-        pingBack();
   if ((millis() - ul_3_Second_timer) > 3000)
   {
     bt_3_S_Time_Up = true;
