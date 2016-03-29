@@ -329,6 +329,7 @@ void setup() {
   //EEPROM NEEDS TO BE SORTED OUT ASAP SO WE CAN CALIBRATE THE 2 IR SENSORS
   /*
     b_LowByte = EEPROM.read(ci_Left_Line_Tracker_Dark_Address_L);
+<<<<<<< HEAD
     b_HighByte = EEPROM.read(ci_Left_Line_Tracker_Dark_Address_H);
     ui_Left_Line_Tracker_Dark = word(b_HighByte, b_LowByte);
     b_LowByte = EEPROM.read(ci_Left_Line_Tracker_Light_Address_L);
@@ -353,10 +354,48 @@ void setup() {
     b_HighByte = EEPROM.read(ci_Right_Motor_Offset_Address_H);
     ui_Right_Motor_Offset = word(b_HighByte, b_LowByte);
   */
+=======
+   b_HighByte = EEPROM.read(ci_Left_Line_Tracker_Dark_Address_H);
+   ui_Left_Line_Tracker_Dark = word(b_HighByte, b_LowByte);
+   b_LowByte = EEPROM.read(ci_Left_Line_Tracker_Light_Address_L);
+   b_HighByte = EEPROM.read(ci_Left_Line_Tracker_Dark_Address_H);
+   ui_Left_Line_Tracker_Light = word(b_HighByte, b_LowByte);
+   b_LowByte = EEPROM.read(ci_Middle_Line_Tracker_Dark_Address_L);
+   b_HighByte = EEPROM.read(ci_Left_Line_Tracker_Dark_Address_H);
+   ui_Middle_Line_Tracker_Dark = word(b_HighByte, b_LowByte);
+   b_LowByte = EEPROM.read(ci_Middle_Line_Tracker_Light_Address_L);
+   b_HighByte = EEPROM.read(ci_Left_Line_Tracker_Dark_Address_H);
+   ui_Middle_Line_Tracker_Light = word(b_HighByte, b_LowByte);
+   b_LowByte = EEPROM.read(ci_Right_Line_Tracker_Dark_Address_L);
+   b_HighByte = EEPROM.read(ci_Left_Line_Tracker_Dark_Address_H);
+   ui_Right_Line_Tracker_Dark = word(b_HighByte, b_LowByte);
+   b_LowByte = EEPROM.read(ci_Right_Line_Tracker_Light_Address_L);
+   b_HighByte = EEPROM.read(ci_Left_Line_Tracker_Dark_Address_H);
+   ui_Right_Line_Tracker_Light = word(b_HighByte, b_LowByte);
+   b_LowByte = EEPROM.read(ci_Left_Motor_Offset_Address_L);
+   b_HighByte = EEPROM.read(ci_Left_Motor_Offset_Address_H);
+   ui_Left_Motor_Offset = word(b_HighByte, b_LowByte);
+   b_LowByte = EEPROM.read(ci_Right_Motor_Offset_Address_L);
+   b_HighByte = EEPROM.read(ci_Right_Motor_Offset_Address_H);
+   ui_Right_Motor_Offset = word(b_HighByte, b_LowByte);
+   */
+   
+   
+   
+   
+   ///////////////////////////////////////////////
+   //ADDING THIS TO SEE IF THE CODE IS BEING KEPT IN THE SETUP FUNCTION
+   Serial.println("code reaching this point");
+>>>>>>> origin/master
 }
 
 void loop()
 {
+<<<<<<< HEAD
+=======
+  
+  Serial.println("loop");
+>>>>>>> origin/master
   if ((millis() - ul_3_Second_timer) > 3000)
   {
     bt_3_S_Time_Up = true;
