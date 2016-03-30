@@ -495,7 +495,7 @@ void loop()
           
           delay(1000);
           rotateClockwise(150, 180);
-          //stop_motors();
+          stop_motors();
           delay(10000);
            
 
@@ -868,9 +868,9 @@ Serial.println(ui_Right_Line_Tracker_Data, DEC);
 
 void forward(int speed) {
   servo_FrontLeftMotor.writeMicroseconds(1500 + speed); //forward
-  servo_FrontRightMotor.writeMicroseconds(1500 + speed); //forward
+  servo_FrontRightMotor.writeMicroseconds(1500 - speed); //forward
   servo_BackLeftMotor.writeMicroseconds(1500 + speed); //forward
-  servo_BackRightMotor.writeMicroseconds(1500 + speed); //forward
+  servo_BackRightMotor.writeMicroseconds(1500 - speed); //forward
 
   //////////////////////////////////
   //added from searchForCubes()
@@ -889,18 +889,18 @@ void forward(int speed) {
 
     //veerLeft() and veerRight() keep us driving relatively straight in y-direction
     //brings robot towards left wall if drifting right
-    if ( current_pos[0] > (10 * numberOfPasses)) //comparative value is standard robot width * number of passes
+    if ( current_pos[0] > ((10 * numberOfPasses) + 3) //comparative value is standard robot width * number of passes
     {
-      veerLeft(100, 10); //new function to steer slightly to the left
+      veerLeft(150, 10); //new function to steer slightly to the left
       //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER LEFT FOR A LITTLE AMOUNT
       //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
       //TO THIS PART OF THE CODE
     }
 
     //brings robot away from left wall if drifting left
-    if ( current_pos[0] < (10 * numberOfPasses))
+    if ( current_pos[0] < ((10 * numberOfPasses)) - 3)
     {
-      //veerRight(); //new function to steer slightly to the left
+      veerRight(150, 10); //new function to steer slightly to the left
       //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER RIGHT FOR A LITTLE AMOUNT
       //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
       //TO THIS PART OF THE CODE
@@ -924,7 +924,7 @@ void forward(int speed) {
     if ( current_pos[0] > (10 * numberOfPasses))
     {
       //FUNCTION NOT WRITTEN YET, AS OF MARCH 27, 2016
-      //veerRight(100); //new function to steer slightly to the left
+      veerRight(150, 10); //new function to steer slightly to the left
       //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER LEFT FOR A LITTLE AMOUNT
       //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
       //TO THIS PART OF THE CODE
@@ -933,7 +933,7 @@ void forward(int speed) {
     //brings drifting towards wall
     if ( current_pos[0] < (10 * numberOfPasses))
     {
-      veerLeft(100, 180); //new function to steer slightly to the left
+      veerLeft(150, 10); //new function to steer slightly to the left
       //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER RIGHT FOR A LITTLE AMOUNT
       //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
       //TO THIS PART OF THE CODE
@@ -967,7 +967,8 @@ void moveRight(int speed) {
 void rotateClockwise(int speed, int angle) {
   //change the numbers accordingly
   encoder_FrontRightMotor.zero();
-  while (encoder_FrontRightMotor.getRawPosition() > -1600)
+  //MIGHT HAVE TO AVERAGE THE 4 ENCODER VALUES AND COMPARE THEM TO ANGLE PASSED
+  while (encoder_FrontRightMotor.getRawPosition() > -(9*angle)) //9 encoder ticks per degree
   {
      Serial.print("right encoder:");
   Serial.println(encoder_FrontRightMotor.getRawPosition());
@@ -1540,9 +1541,9 @@ void veerRight(int speedy, int xDistance) {
   pingLeft();
   while (current_pos[0] < leftDistance) {
     servo_FrontLeftMotor.writeMicroseconds(1500 + speedy); // the difference in the veerRight and left
-    servo_FrontRightMotor.writeMicroseconds(1500 + slower); // is the speed of the wheels and the
+    servo_FrontRightMotor.writeMicroseconds(1500 - slower); // is the speed of the wheels and the
     servo_BackLeftMotor.writeMicroseconds(1500 + speedy); // distance of the left wall to the ultrasonic
-    servo_BackRightMotor.writeMicroseconds(1500 + slower);
+    servo_BackRightMotor.writeMicroseconds(1500 - slower);
   }
 }
 
@@ -1555,9 +1556,9 @@ void veerLeft(int speedy, int xDistance) {
   pingLeft();
   while (current_pos[0] < leftDistance) {
     servo_FrontLeftMotor.writeMicroseconds(1500 + slower);
-    servo_FrontRightMotor.writeMicroseconds(1500 + speedy);
+    servo_FrontRightMotor.writeMicroseconds(1500 - speedy);
     servo_BackLeftMotor.writeMicroseconds(1500 + slower);
-    servo_BackRightMotor.writeMicroseconds(1500 + speedy);
+    servo_BackRightMotor.writeMicroseconds(1500 - speedy);
   }
 }
 
