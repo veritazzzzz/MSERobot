@@ -1002,10 +1002,10 @@ void reverseLeftDiagonal(int speed) {
 }
 
 void stop_motors() {
-  servo_FrontLeftMotor.writeMicroseconds(200);
-  servo_FrontRightMotor.writeMicroseconds(200);
-  servo_BackLeftMotor.writeMicroseconds(200);
-  servo_BackRightMotor.writeMicroseconds(200);
+  servo_FrontLeftMotor.writeMicroseconds(1500);
+  servo_FrontRightMotor.writeMicroseconds(1500);
+  servo_BackLeftMotor.writeMicroseconds(1500);
+  servo_BackRightMotor.writeMicroseconds(1500);
 }
 
 //*****Pinging Functions*****
