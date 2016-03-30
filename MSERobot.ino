@@ -51,12 +51,12 @@ const int ci_BackLeft_Motor = 11;
 
 //problem pins are 4 and 5
 const int ci_Front_Ultrasonic_Data = 3;
-const int ci_Back_Ultrasonic_Data = 100; //DONT CHANGE
+const int ci_Back_Ultrasonic_Data = 5; //DONT CHANGE
 const int ci_Left_Ultrasonic_Data = 7;
 const int ci_Right_Ultrasonic_Data = 8;
 
 const int ci_Front_Ultrasonic_Ping = 2;
-const int ci_Back_Ultrasonic_Ping = 200; //DONT CHANGE
+const int ci_Back_Ultrasonic_Ping = 4; //DONT CHANGE
 const int ci_Left_Ultrasonic_Ping = 6;
 const int ci_Right_Ultrasonic_Ping = 9;
 
@@ -485,17 +485,21 @@ void loop()
 
 
           /***************************************************************************************
-             Add line tracking code here.
-             Adjust motor speed according to information from line tracking sensors and
-             possibly encoder counts.
-             Line tracking code added Jan 19, 2016 by Julian Zane
+           THIS IS MODE 1 FOR MSE FINAL DESIGN ROBOT
             /*************************************************************************************/
 
 
           
           delay(1000);
-          rotateClockwise(150, 180);
+          rotateClockwise(200, 179); //arguments are speed differential and angle of rotation
           stop_motors();
+          delay(1000);
+          initPos();
+          Serial.println("Home position: ");
+          Serial.print("X: ");
+          Serial.println(home_pos[0]);
+          Serial.print("Y: ");
+          Serial.println(home_pos[1]);
           delay(10000);
            
 
@@ -889,8 +893,8 @@ void forward(int speed) {
 
     //veerLeft() and veerRight() keep us driving relatively straight in y-direction
     //brings robot towards left wall if drifting right
-    if ( current_pos[0] > ((10 * numberOfPasses) + 3) //comparative value is standard robot width * number of passes
-    {
+    if ( current_pos[0] > ((10 * numberOfPasses) + 3)){ //comparative value is standard robot width * number of passes
+
       veerLeft(150, 10); //new function to steer slightly to the left
       //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER LEFT FOR A LITTLE AMOUNT
       //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
@@ -1140,9 +1144,9 @@ void initPos()
   for (int i = 0; i < 10; i++)
   {
     pingLeft();
-    pingRight();
+    pingBack();
     home_pos[0] = cmLeft; //sets x coordinate
-    home_pos[1] = cmRight; //sets y coordinate
+    home_pos[1] = cmBack; //sets y coordinate
   }
 } //end function
 
