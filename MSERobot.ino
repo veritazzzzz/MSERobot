@@ -1,5 +1,7 @@
 //hibby
 
+#include <PID_v1.h> //PID library
+
 #include <uSTimer2.h>
 
 #include <I2CEncoder.h>
@@ -234,7 +236,24 @@ int numberOfPasses; //keeps track of how many times we've driven in the y-direct
 int distance[7]; //array to hold the distances coming serially from board 2
 
 
+///////////////
+//PID CONTROL SYSTEM VARIABLES
+double Setpoint, Input, Output;
+//pass pointers so we the pid can modify and read updated values
+PID motorControl(&Input, &Output, &Setpoint, 2, 5, 1, DIRECT); //the values are P, I, D, currently are default, we need to tune these
+
+
+
 void setup() {
+
+  ////////////////////////
+  //SETTING UP PID CONTROL
+  ////////////////////////
+
+  motorControl.SetMode(AUTOMATIC);
+  motorControl.SetSampleTime(50); //pid updates every 50ms (default is 200, Arduino recommends shorter for robotics)
+  Setpoint = 0;
+
 
 
   ///////////////////////
@@ -510,6 +529,7 @@ void loop()
           current_pos[1] = cmBack;
           while (encoder_FrontRightMotor.getRawPosition() < 10000)
           {
+
             forward(300);
           }
 
@@ -882,13 +902,49 @@ Serial.println(ui_Right_Line_Tracker_Data, DEC);
 
 
 
-//*****Driving Functions*****
+//*****Driving Functions*****///////////////////////////////////////////////////////////
 
 void forward(int speed) {
-  servo_FrontLeftMotor.writeMicroseconds(1500 + speed + 70); //forward
+  //zero encoders before we do anything
+  encoder_FrontRightMotor.zero();
+  encoder_FrontLeftMotor.zero();
+
+
+  servo_FrontLeftMotor.writeMicroseconds(1500 + speed); //forward
   servo_FrontRightMotor.writeMicroseconds(1500 - speed); //forward
   servo_BackLeftMotor.writeMicroseconds(1500 + speed); //forward
   servo_BackRightMotor.writeMicroseconds(1500 - speed); //forward
+
+
+  //add negative casue its rotating backwards when going forward
+  Input = (-encoder_FrontRightMotor.getRawPosition() - encoder_FrontLeftMotor.getRawPosition()); //input to PID ios dif between encoders
+
+  //output is the return of the PID, it is a pwm signal
+  //we can't write this directly to a wheel
+  motorControl.Compute(); //calls a change or something to the PID
+
+  //in this statement if right is more than left, ie: right turning more than left, ie need to correct right
+  if (Output > 0)
+  {
+    //correcting to turn slightly right
+    servo_FrontLeftMotor.writeMicroseconds(1500 + speed + 100); //forward
+    servo_FrontRightMotor.writeMicroseconds(1500 - speed + 50); //forward
+    servo_BackLeftMotor.writeMicroseconds(1500 + speed); //forward
+    servo_BackRightMotor.writeMicroseconds(1500 - speed); //forward
+  }
+
+
+
+
+
+//IF PID WORKS, WRITE THE REST OF THE PID CONTROL CODE HERE
+
+
+
+
+
+
+  
 
   //////////////////////////////////
   //added from searchForCubes()
@@ -917,7 +973,7 @@ void forward(int speed) {
       //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
       //TO THIS PART OF THE CODE
 
-      servo_FrontLeftMotor.writeMicroseconds(1500 + speed + 70); //forward
+      servo_FrontLeftMotor.writeMicroseconds(1500 + speed); //forward
       servo_FrontRightMotor.writeMicroseconds(1500 - speed); //forward
       servo_BackLeftMotor.writeMicroseconds(1500 + speed); //forward
       servo_BackRightMotor.writeMicroseconds(1500 - speed); //forward
@@ -934,7 +990,7 @@ void forward(int speed) {
       //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
       //TO THIS PART OF THE CODE
 
-      servo_FrontLeftMotor.writeMicroseconds(1500 + speed + 70); //forward
+      servo_FrontLeftMotor.writeMicroseconds(1500 + speed); //forward
       servo_FrontRightMotor.writeMicroseconds(1500 - speed); //forward
       servo_BackLeftMotor.writeMicroseconds(1500 + speed); //forward
       servo_BackRightMotor.writeMicroseconds(1500 - speed); //forward
@@ -956,7 +1012,7 @@ void forward(int speed) {
       }//end while
     }//end if
 
-     //if robot is turning towards left wall
+    //if robot is turning towards left wall
     if (distance[2] < distance[3])
     {
       while (distance[2] < distance[3] + 1) //+1 is for tolerance
@@ -977,9 +1033,9 @@ void forward(int speed) {
 
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///CHECK SERIAL COMMUNICATION ON POSITIVE Y DIRECTION BEFORE i FINISH WRITING ALL THE SAME CODE BUT FOR THE NEGATIOVE Y DIRECTION
-//USING THE RIGHT ULTRASONIC SENSORS 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///CHECK SERIAL COMMUNICATION ON POSITIVE Y DIRECTION BEFORE i FINISH WRITING ALL THE SAME CODE BUT FOR THE NEGATIOVE Y DIRECTION
+  //USING THE RIGHT ULTRASONIC SENSORS
 
 
 
@@ -1635,9 +1691,9 @@ void veerRight(int speedy, int xDistance) {
   // this is done until we get to our set x distance away + a small value (2-3cm)
   // this is used to drive straight and correct the drift for the omniwheels
   getDistance();
-  
+
   //pingLeft();
-  while ((distance[2] + distance[3])/2 < leftDistance) { //average the two left readings
+  while ((distance[2] + distance[3]) / 2 < leftDistance) { //average the two left readings
     servo_FrontLeftMotor.writeMicroseconds(1500 + speedy); // the difference in the veerRight and left
     servo_FrontRightMotor.writeMicroseconds(1500); // is the speed of the wheels and the
     servo_BackLeftMotor.writeMicroseconds(1500); // distance of the left wall to the ultrasonic
@@ -1656,7 +1712,7 @@ void veerLeft(int speedy, int xDistance) {
   // this is used to drive straight and correct the drift for the omniwheels
   getDistance();
   //pingLeft();
-  while ( (distance[2] + distance[3])/2 > leftDistance) {
+  while ( (distance[2] + distance[3]) / 2 > leftDistance) {
     servo_FrontLeftMotor.writeMicroseconds(1500);
     servo_FrontRightMotor.writeMicroseconds(1500 - speedy);
     servo_BackLeftMotor.writeMicroseconds(1500 + speedy);
