@@ -950,18 +950,18 @@ void forward(int speed) {
     //we adjust by turning counter clockwise (ccw)
     if (distance[2] > distance[3])
     {
-      while (distance[2] > disatance[3] - 1) //-1 is for tolerance
+      while (distance[2] > distance[3] - 1) //-1 is for tolerance
       {
-        rotateCounterClockwise(200, 1) //rotates the robot one degree at a time (rotate func uses encoders not ultras
+        rotateCounterClockwise(200, 1); //rotates the robot one degree at a time (rotate func uses encoders not ultras
       }//end while
     }//end if
 
      //if robot is turning towards left wall
     if (distance[2] < distance[3])
     {
-      while (distance[2] < disatance[3] + 1) //+1 is for tolerance
+      while (distance[2] < distance[3] + 1) //+1 is for tolerance
       {
-        rotateCounterClockwise(200, 1) //rotates the robot one degree at a time (rotate func uses encoders not ultras
+        rotateCounterClockwise(200, 1); //rotates the robot one degree at a time (rotate func uses encoders not ultras
       }//end while
     }//end if
 
@@ -1345,20 +1345,20 @@ void checkCube() {
 }//end function
 
 //rotate counterclock wise with the speed and angle
-void rotateCounterClockwise(int speedy, int angle)
+void rotateCounterClockwise(int speed, int angle)
 {
   //change and test numbers accordingly
 
-  // zero the front right motor only, then count the number of ticks
   encoder_FrontRightMotor.zero();
-
-  //find the difference of the raw position and the zero position,
-  // will need to test for values and will need to change the arbitary one
-  while ((encoder_FrontRightMotor.getRawPosition()) <= angle) {
-    servo_FrontLeftMotor.writeMicroseconds(1500 - speedy); //reverse
-    servo_FrontRightMotor.writeMicroseconds(1500 + speedy); //forward
-    servo_BackLeftMotor.writeMicroseconds(1500 - speedy); //reverse
-    servo_BackRightMotor.writeMicroseconds(1500 + speedy); //forward
+  //MIGHT HAVE TO AVERAGE THE 4 ENCODER VALUES AND COMPARE THEM TO ANGLE PASSED
+  while (encoder_FrontRightMotor.getRawPosition() > -(9 * angle)) //9 encoder ticks per degree
+  {
+    Serial.print("right encoder:");
+    Serial.println(encoder_FrontRightMotor.getRawPosition());
+    servo_FrontLeftMotor.writeMicroseconds(1500 - speed); //forward
+    servo_FrontRightMotor.writeMicroseconds(1500 - speed); //forward
+    servo_BackLeftMotor.writeMicroseconds(1500 - speed); //forward
+    servo_BackRightMotor.writeMicroseconds(1500 - speed); //forward
   }
 
   // if the robot rotates 180 degrees, change the directionality register to
@@ -1634,13 +1634,16 @@ void veerRight(int speedy, int xDistance) {
   // for veerLeft, the right side motors are operating faster than the left side
   // this is done until we get to our set x distance away + a small value (2-3cm)
   // this is used to drive straight and correct the drift for the omniwheels
-  pingLeft();
-  while (cmLeft < leftDistance) {
+  getDistance();
+  
+  //pingLeft();
+  while ((distance[2] + distance[3])/2 < leftDistance) { //average the two left readings
     servo_FrontLeftMotor.writeMicroseconds(1500 + speedy); // the difference in the veerRight and left
     servo_FrontRightMotor.writeMicroseconds(1500); // is the speed of the wheels and the
     servo_BackLeftMotor.writeMicroseconds(1500); // distance of the left wall to the ultrasonic
     servo_BackRightMotor.writeMicroseconds(1500 - slower);
-    pingLeft();
+    //pingLeft();
+    getDistance();
   }
 }
 
@@ -1651,13 +1654,15 @@ void veerLeft(int speedy, int xDistance) {
   // for veerLeft, the right side motors are operating faster than the left side
   // this is done until we get to our set x distance away + a small value (2-3cm)
   // this is used to drive straight and correct the drift for the omniwheels
-  pingLeft();
-  while (cmLeft > leftDistance) {
+  getDistance();
+  //pingLeft();
+  while ( (distance[2] + distance[3])/2 > leftDistance) {
     servo_FrontLeftMotor.writeMicroseconds(1500);
     servo_FrontRightMotor.writeMicroseconds(1500 - speedy);
     servo_BackLeftMotor.writeMicroseconds(1500 + speedy);
     servo_BackRightMotor.writeMicroseconds(1500);
-    pingLeft();
+    getDistance();
+    //pingLeft();
   }
 }
 
