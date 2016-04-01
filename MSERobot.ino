@@ -1034,10 +1034,10 @@ void moveLeft(int slidingSpeed) {
 
   pingLeft();
   pingFront();
- // int current_pos_temp1[2] = ;
+  // int current_pos_temp1[2] = ;
   //int current_pos_temp1[0] = cmLeft;
   //int current_pos_temp1[1] = cmFront;
-  for (int i=0;1<3;i++)
+  for (int i=0;i<3;i++)
   {
     pingFront();
     //pingRight();
@@ -1084,7 +1084,7 @@ void moveLeft(int slidingSpeed) {
 
 }//end moveLeft()
 
-void moveRight(int slidingSpeed) {
+void moveRight(int slidingSpeed, int Dist) { //pass how far we need to move over to the function
 
 
 
@@ -1093,57 +1093,50 @@ void moveRight(int slidingSpeed) {
   int current_pos_temp[2];
   current_pos_temp[0] = cmLeft;
   current_pos_temp[1] = cmFront;
-  for (int i=0;i<3;i++)
+  while (cmLeft < (current_pos_temp[0] + Dist))
   {
+    pingLeft();
+    pingFront();
     servo_FrontLeftMotor.writeMicroseconds(1500 + slidingSpeed);
-    servo_FrontRightMotor.writeMicroseconds(1500 - slidingSpeed);
+    servo_FrontRightMotor.writeMicroseconds(1500 + slidingSpeed);
     servo_BackLeftMotor.writeMicroseconds(1500 - slidingSpeed);
-    servo_BackRightMotor.writeMicroseconds(1500 + slidingSpeed);
+    servo_BackRightMotor.writeMicroseconds(1500 - slidingSpeed);
 
 
-    if (current_pos[1] > (current_pos_temp[1]) + 2)
+    if (cmFront > (current_pos_temp[1]) + 2)
     {
+      pingFront();
+      while (cmFront > current_pos_temp[1])
+      {
+        pingFront(); //update y poasition
+        servo_FrontLeftMotor.writeMicroseconds(1500 + slidingSpeed + 80); //forward
+        servo_FrontRightMotor.writeMicroseconds(1500 - slidingSpeed); //forward
+        servo_BackLeftMotor.writeMicroseconds(1500 + slidingSpeed); //forward
+        servo_BackRightMotor.writeMicroseconds(1500 - slidingSpeed); //forward
+      }
 
-      servo_FrontLeftMotor.writeMicroseconds(1500 + slidingSpeed + 80); //forward
-      servo_FrontRightMotor.writeMicroseconds(1500 - slidingSpeed); //forward
-      servo_BackLeftMotor.writeMicroseconds(1500 + slidingSpeed); //forward
-      servo_BackRightMotor.writeMicroseconds(1500 - slidingSpeed); //forward
-
-        delay(50);
-      servo_FrontLeftMotor.writeMicroseconds(1500 +slidingSpeed);
-      servo_FrontRightMotor.writeMicroseconds(1500 - slidingSpeed);
-      servo_BackLeftMotor.writeMicroseconds(1500 - slidingSpeed);
-      servo_BackRightMotor.writeMicroseconds(1500 + slidingSpeed);
+      stop_motors();
 
     }
-    if (current_pos[1] < (current_pos_temp[1]) - 2)
+    if (cmFront < (current_pos_temp[1]) - 2)
     {
 
+      {
+        pingFront();
+        while (cmFront < current_pos_temp[1])
+        {
+          pingFront(); //update y poasition
+          servo_FrontLeftMotor.writeMicroseconds(1500 - slidingSpeed - 80); //forward
+          servo_FrontRightMotor.writeMicroseconds(1500 + slidingSpeed); //forward
+          servo_BackLeftMotor.writeMicroseconds(1500 - slidingSpeed); //forward
+          servo_BackRightMotor.writeMicroseconds(1500 + slidingSpeed); //forward
+        }
 
-      servo_FrontLeftMotor.writeMicroseconds(1500 - slidingSpeed - 80); //forward
-      servo_FrontRightMotor.writeMicroseconds(1500 + slidingSpeed); //forward
-      servo_BackLeftMotor.writeMicroseconds(1500 - slidingSpeed); //forward
-      servo_BackRightMotor.writeMicroseconds(1500 + slidingSpeed); //forward
+        stop_motors();
 
-
-
-
-        delay(50);
-      servo_FrontLeftMotor.writeMicroseconds(1500 + slidingSpeed);
-      servo_FrontRightMotor.writeMicroseconds(1500 - slidingSpeed);
-      servo_BackLeftMotor.writeMicroseconds(1500 - slidingSpeed);
-      servo_BackRightMotor.writeMicroseconds(1500 + slidingSpeed);
+      }
     }
   }
-  pingLeft();
-  pingFront();
-  current_pos_temp[0] = cmLeft;
-  current_pos_temp[1] = cmFront;
-
-
-
-
-
 
 }
 
@@ -1368,16 +1361,14 @@ void searchForCube()
     } //end while
     stop_motors();
 
-    //if here, robot needs to turn around;
-    rotateClockwise(200, 160);//function should have a case for 180, where it flips
-    //the directionality register in "current_pos"
+
 
     //if robot is now facing positive y-dir
     if (current_pos[2] == 0)
     {
       pingLeft();
       while (cmLeft < (current_pos[0]) + 10) //gets the robvot to move right one robot width
-        moveRight(100);
+        moveRight(170, 8);
     }
     stop_motors(); //stop robot
 
@@ -1386,9 +1377,13 @@ void searchForCube()
     {
       pingRight();
       while (cmRight < (current_pos[0]) + 10) //gets the robvot to move right one robot width
-        moveLeft(100);
+        moveLeft(170);
     }
     stop_motors();
+
+    //if here, robot needs to turn around;
+    rotateClockwise(200, 160);//function should have a case for 180, where it flips
+    //the directionality register in "current_pos"
 
     /////////////////////////////////////////////
     //CRITICAL TO OPERATION, DO NOT DELETE!!!!!
@@ -1492,7 +1487,7 @@ void goHome()
 
     while (current_pos[0] > home_pos[0] + 20)  //x-dir-> leaving enough room to turn to face the side wall
     {
-      moveRight(100);
+      moveRight(100, 8);
       pingRight(); //updates our x values
     }
     stop_motors();
@@ -1515,7 +1510,7 @@ void goHome()
 
       while (current_pos[0] > home_pos[0])// x - dir-> leave room for rotation
       {
-        moveRight(100);
+        moveRight(100, 8);
         pingRight(); //updates position
       }
       stop_motors();
@@ -1605,7 +1600,7 @@ void backToLastKnownCube()
     //moving in positive x-dir until our current position matches the last known cube pos x-dir
     while (current_pos[0] < last_known_cube_pos[0])
     {
-      moveRight(100);
+      moveRight(100, 8);
       pingLeft();
       cmLeft = current_pos[0]; //setting x-val to current left untrasonic reading
     }
@@ -1815,6 +1810,8 @@ void moveLeft(int slidingSpeed, int horizontalDistance)
  }
  }
  */
+
+
 
 
 
