@@ -489,7 +489,7 @@ void loop()
         /*************************************************************************************/
 
 
-        Serial.println("fuck this robot");
+        //Serial.println("fuck this robot");
         //delay(1000);
         /*
           rotateClockwise(200, 175); //arguments are speed differential and angle of rotation
@@ -502,7 +502,7 @@ void loop()
          Serial.print("Y: ");
          Serial.println(home_pos[1]);*/
         //pingLeft();
-        pingRight();
+        //pingRight();
         //pingBack();
         //pingFront();
         //current_pos[0] = cmLeft;
@@ -514,7 +514,7 @@ void loop()
         //}
 
         searchForCube();
-
+        //delay(2000);
         ///////////////////////////////////////////////
         //debugging move right
         // moveRight(200, 15); //should move cm to the right slowly
@@ -919,7 +919,7 @@ void forward(int speed) {
     //brings robot towards left wall if drifting right
 
 
-      if (numberOfPasses = 1)
+      if (numberOfPasses == 1)
     {
       pingLeft();
       if (current_pos[0] > 4) //distance of 2cm
@@ -948,7 +948,7 @@ void forward(int speed) {
 
 
     else{ //else is if numberOfPasses > 1
-      if ( current_pos[0] > ((5 * numberOfPasses) + 3)){ //comparative value is standard robot width * number of passes
+      if ( current_pos[0] > ((7 * numberOfPasses) + 3)){ //comparative value is standard robot width * number of passes
 
         pingLeft();
         veerLeft(150, cmLeft); //new function to steer slightly to the left
@@ -964,7 +964,7 @@ void forward(int speed) {
       }
 
       //brings robot away from left wall if drifting left
-      if ( current_pos[0] < ((5 * numberOfPasses)) - 3)
+      if ( current_pos[0] < ((7 * numberOfPasses)) - 3)
       {
         pingLeft();
         veerRight(150, cmLeft); //new function to steer slightly to the left
@@ -988,6 +988,7 @@ void forward(int speed) {
   //if travelling in negative y-direction
   if (current_pos[2] == 1)
   {
+    Serial.println("entering ==1");
     pingBack();
     pingRight();
     current_pos[1] = cmBack; //update y coordinate (might not even need this)
@@ -1114,7 +1115,7 @@ void moveRight(int slidingSpeed, int Dist)
   current_pos_temp[1] = cmFront;
   while (cmLeft < (current_pos_temp[0] + Dist))
   {
-    Serial.println();
+
     pingLeft();
     //pingFront();
     servo_FrontLeftMotor.writeMicroseconds(1500 + slidingSpeed);
@@ -1176,7 +1177,7 @@ void rotateClockwise(int speed, int angle) {
     servo_BackRightMotor.writeMicroseconds(1500 + speed); //forward
   }
 
-  numberOfPasses++;
+  //numberOfPasses++; in search for cube
   if (angle > 100)
   {
     if (current_pos[2] == 0)
@@ -1190,7 +1191,6 @@ void rotateClockwise(int speed, int angle) {
     } 
 
   }
-
 
 
 
@@ -1370,7 +1370,7 @@ void initPos()
 //function takes care of driving around
 //and trying to find a cube
 //DOES NOT CONCERN ITSELF IF THE CUBE
-//IS REAL OR NOT JSUT YET (SEPERATE FUNCTION)
+//IS REAL OR NOT JUST YET (SEPERATE FUNCTION)
 //*////////////////////////////////////
 void searchForCube()
 {
@@ -1397,34 +1397,32 @@ void searchForCube()
 
       pingLeft();
       while (cmLeft < (current_pos[0]) + 10) //gets the robvot to move right one robot width
-        moveRight(200, 7);
+        moveLeft(200, 7);
 
     }
 
-    else if (current_pos[2] == 1)
+    else// (current_pos[2] == 1)
     {
       moveLeft(200, 3); 
 
+      stop_motors();
 
-      rotateCounterClockwise(200, 160);//function should have a case for 180, where it flips
+      Serial.println("correct if condition");
+      ///delay(2000);
+
+      rotateCounterClockwise(200, 167);//function should have a case for 180, where it flips
       //the directionality register in "current_pos"
+
+      pingLeft();
+      while (cmLeft < (current_pos[0]) + 10) //gets the robvot to move right one robot width
+        moveRight(200, 7);
     }
 
 
     //if robot is now facing positive y-dir
-    if (current_pos[2] == 0)
-    {
 
-    }
-
-    if (current_pos[2] == 1)
-    {
-      pingRight();
-      while (cmRight < (current_pos[0]) + 10) //gets the robvot to move right one robot width
-        moveLeft(200, 7);
-    }
     stop_motors();
-
+    //delay(2000);
 
 
 
@@ -1433,7 +1431,7 @@ void searchForCube()
 
     /////////////////////////////////////////////
     //CRITICAL TO OPERATION, DO NOT DELETE!!!!!
-    numberOfPasses = numberOfPasses + 1; //increments the number of passes variable so we keep a standard width from the wall
+    numberOfPasses++; //increments the number of passes variable so we keep a standard width from the wall
 
 
   }//end while
@@ -1495,7 +1493,7 @@ void rotateCounterClockwise(int speedy, int angle)
 
   //find the difference of the raw position and the zero position,
   // will need to test for values and will need to change the arbitary one
-  while ((encoder_FrontRightMotor.getRawPosition()) <= -(9*angle)) {
+  while ((encoder_FrontRightMotor.getRawPosition()) <= (9*angle)) {
     servo_FrontLeftMotor.writeMicroseconds(1500 - speedy); //reverse
     servo_FrontRightMotor.writeMicroseconds(1500 - speedy); //forward
     servo_BackLeftMotor.writeMicroseconds(1500 - speedy); //reverse
@@ -1818,7 +1816,6 @@ void veerLeft(int speedy, int xDistance) {
   if(current_pos[2] == 0)
   {
 
-
     pingLeft();
     while (cmLeft > leftDistance) { //left dist is correct
       servo_FrontLeftMotor.writeMicroseconds(1500);
@@ -1836,7 +1833,7 @@ void veerLeft(int speedy, int xDistance) {
 
 
     pingRight();
-    while (cmRight < leftDistance_1) {
+    while (cmRight > leftDistance_1) {
       servo_FrontLeftMotor.writeMicroseconds(1500);
       servo_FrontRightMotor.writeMicroseconds(1500 - speedy);
       servo_BackLeftMotor.writeMicroseconds(1500 + speedy);
@@ -1901,6 +1898,8 @@ void moveLeft(int slidingSpeed, int horizontalDistance)
  }
  }
  */
+
+
 
 
 
