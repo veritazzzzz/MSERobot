@@ -389,7 +389,7 @@ void setup() {
 
   ///////////////////////////////////////////////
   //ADDING THIS TO SEE IF THE CODE IS BEING KEPT IN THE SETUP FUNCTION
-  Serial.println("code reaching this point");
+  //Serial.println("code reaching this point");
 
 }
 
@@ -501,19 +501,28 @@ void loop()
          Serial.println(home_pos[0]);
          Serial.print("Y: ");
          Serial.println(home_pos[1]);*/
-        pingLeft();
+        //pingLeft();
         pingRight();
-        pingBack();
-        pingFront();
-        current_pos[0] = cmLeft;
-        current_pos[1] = cmBack;
-        /*
-        while (encoder_FrontRightMotor.getRawPosition() < 10000)
-         {
-         forward(300);
-         }
-         */
+        //pingBack();
+        //pingFront();
+        //current_pos[0] = cmLeft;
+        //current_pos[1] = cmBack;
+
+        //while (encoder_FrontRightMotor.getRawPosition() < 10000)
+        //{
+        //forward(300);
+        //}
+
         searchForCube();
+
+        ///////////////////////////////////////////////
+        //debugging move right
+        // moveRight(200, 15); //should move cm to the right slowly
+
+
+        //stop_motors();
+
+        //delay(10000);
         //stop_motors();
         //delay(10000);
 
@@ -986,7 +995,7 @@ void forward(int speed) {
 
     //veerLeft() and veerRight() keep us driving relatively straight in y-direction
     //robot drifting left away from wall
-    if ( current_pos[0] > (8 * numberOfPasses))
+    if ( current_pos[0] > (6 * numberOfPasses) + 2)
     {
       pingRight();
       //FUNCTION NOT WRITTEN YET, AS OF MARCH 27, 2016
@@ -1002,9 +1011,9 @@ void forward(int speed) {
     }
 
     //brings drifting towards wall
-    if ( current_pos[0] < (8 * numberOfPasses))
+    if ( current_pos[0] < (6 * numberOfPasses) - 2)
     {
-      pingLeft();
+      pingRight();
       veerLeft(150, cmLeft); //new function to steer slightly to the left
       //THIS NEW FUNCTION SHOULD USE ENCODER POSITIONS TO ONLY VEER RIGHT FOR A LITTLE AMOUNT
       //THEN GO ABCK TO DRIVING FORWARD BEFORE EXITING AND PASSING CONTROL BACK
@@ -1029,114 +1038,127 @@ void reverse(int speed) {
   servo_BackRightMotor.writeMicroseconds(1500 - speed); //reverse
 }
 
-void moveLeft(int slidingSpeed) {
+void moveLeft(int slidingSpeed, int Dist) {
 
-
-  pingLeft();
+  pingRight();
   pingFront();
-  // int current_pos_temp1[2] = ;
-  //int current_pos_temp1[0] = cmLeft;
-  //int current_pos_temp1[1] = cmFront;
-  for (int i=0;i<3;i++)
+
+  int current_pos_temp[2];
+  current_pos_temp[0] = cmRight;
+  current_pos_temp[1] = cmFront;
+  while (cmRight < (current_pos_temp[0] + Dist))
   {
-    pingFront();
-    //pingRight();
-    //current_pos[0] = cmLeft;
-    int current_pos_y = cmFront;
+    Serial.println(cmRight);
+    pingRight();
+    //pingFront();
     servo_FrontLeftMotor.writeMicroseconds(1500 - slidingSpeed);
-    servo_FrontRightMotor.writeMicroseconds(1500 + slidingSpeed);
+    servo_FrontRightMotor.writeMicroseconds(1500 - slidingSpeed);
     servo_BackLeftMotor.writeMicroseconds(1500 + slidingSpeed);
-    servo_BackRightMotor.writeMicroseconds(1500 - slidingSpeed);
-    if (current_pos[1] > (current_pos_y) + 2)
-    {
+    servo_BackRightMotor.writeMicroseconds(1500 + slidingSpeed);
 
-      servo_FrontLeftMotor.writeMicroseconds(1500 + slidingSpeed + 80); //forward
-      servo_FrontRightMotor.writeMicroseconds(1500 - slidingSpeed); //forward
-      servo_BackLeftMotor.writeMicroseconds(1500 + slidingSpeed); //forward
-      servo_BackRightMotor.writeMicroseconds(1500 - slidingSpeed); //forward
-
-
-        delay(50);
-      servo_FrontLeftMotor.writeMicroseconds(1500 - slidingSpeed);
-      servo_FrontRightMotor.writeMicroseconds(1500 + slidingSpeed);
-      servo_BackLeftMotor.writeMicroseconds(1500 + slidingSpeed);
-      servo_BackRightMotor.writeMicroseconds(1500 - slidingSpeed);
-
-    }
-    if (current_pos[1] < (current_pos_y) - 2)
-    {
-      servo_FrontLeftMotor.writeMicroseconds(1500 - slidingSpeed - 80); //forward
-      servo_FrontRightMotor.writeMicroseconds(1500 + slidingSpeed); //forward
-      servo_BackLeftMotor.writeMicroseconds(1500 - slidingSpeed); //forward
-      servo_BackRightMotor.writeMicroseconds(1500 + slidingSpeed); //forward
-
-        delay(50);
-      servo_FrontLeftMotor.writeMicroseconds(1500 - slidingSpeed);
-      servo_FrontRightMotor.writeMicroseconds(1500 + slidingSpeed);
-      servo_BackLeftMotor.writeMicroseconds(1500 + slidingSpeed);
-      servo_BackRightMotor.writeMicroseconds(1500 - slidingSpeed);
-    }
+    /*
+    if (cmFront > (current_pos_temp[1]) + 2)
+     {
+     pingFront();
+     while (cmFront > current_pos_temp[1])
+     {
+     pingFront(); //update y poasition
+     servo_FrontLeftMotor.writeMicroseconds(1500 + slidingSpeed + 80); //forward
+     servo_FrontRightMotor.writeMicroseconds(1500 - slidingSpeed); //forward
+     servo_BackLeftMotor.writeMicroseconds(1500 + slidingSpeed); //forward
+     servo_BackRightMotor.writeMicroseconds(1500 - slidingSpeed); //forward
+     }
+     
+     stop_motors();
+     
+     }
+     if (cmFront < (current_pos_temp[1]) - 2)
+     {
+     
+     {
+     pingFront();
+     while (cmFront < current_pos_temp[1])
+     {
+     pingFront(); //update y poasition
+     servo_FrontLeftMotor.writeMicroseconds(1500 - slidingSpeed - 80); //forward
+     servo_FrontRightMotor.writeMicroseconds(1500 + slidingSpeed); //forward
+     servo_BackLeftMotor.writeMicroseconds(1500 - slidingSpeed); //forward
+     servo_BackRightMotor.writeMicroseconds(1500 + slidingSpeed); //forward
+     }
+     
+     stop_motors();
+     
+     }
+     }
+     */
   }
-  pingLeft();
-  pingFront();
-  //current_pos[0] = cmLeft;
-  //current_pos_y = cmFront;
+  stop_motors();
+
+  /* 
+   if (cmRight > (current_pos_temp[0] + Dist))
+   {stop_motors();
+   }
+   */
 
 }//end moveLeft()
 
-void moveRight(int slidingSpeed, int Dist) { //pass how far we need to move over to the function
+void moveRight(int slidingSpeed, int Dist) 
+{ //pass how far we need to move over to the function
 
 
 
   pingLeft();
-  pingFront();
+  //pingFront();
   int current_pos_temp[2];
   current_pos_temp[0] = cmLeft;
   current_pos_temp[1] = cmFront;
   while (cmLeft < (current_pos_temp[0] + Dist))
   {
+    Serial.println();
     pingLeft();
-    pingFront();
+    //pingFront();
     servo_FrontLeftMotor.writeMicroseconds(1500 + slidingSpeed);
     servo_FrontRightMotor.writeMicroseconds(1500 + slidingSpeed);
     servo_BackLeftMotor.writeMicroseconds(1500 - slidingSpeed);
     servo_BackRightMotor.writeMicroseconds(1500 - slidingSpeed);
 
-
+    /*
     if (cmFront > (current_pos_temp[1]) + 2)
-    {
-      pingFront();
-      while (cmFront > current_pos_temp[1])
-      {
-        pingFront(); //update y poasition
-        servo_FrontLeftMotor.writeMicroseconds(1500 + slidingSpeed + 80); //forward
-        servo_FrontRightMotor.writeMicroseconds(1500 - slidingSpeed); //forward
-        servo_BackLeftMotor.writeMicroseconds(1500 + slidingSpeed); //forward
-        servo_BackRightMotor.writeMicroseconds(1500 - slidingSpeed); //forward
-      }
-
-      stop_motors();
-
-    }
-    if (cmFront < (current_pos_temp[1]) - 2)
-    {
-
-      {
-        pingFront();
-        while (cmFront < current_pos_temp[1])
-        {
-          pingFront(); //update y poasition
-          servo_FrontLeftMotor.writeMicroseconds(1500 - slidingSpeed - 80); //forward
-          servo_FrontRightMotor.writeMicroseconds(1500 + slidingSpeed); //forward
-          servo_BackLeftMotor.writeMicroseconds(1500 - slidingSpeed); //forward
-          servo_BackRightMotor.writeMicroseconds(1500 + slidingSpeed); //forward
-        }
-
-        stop_motors();
-
-      }
-    }
+     {
+     pingFront();
+     while (cmFront > current_pos_temp[1])
+     {
+     pingFront(); //update y poasition
+     servo_FrontLeftMotor.writeMicroseconds(1500 + slidingSpeed + 80); //forward
+     servo_FrontRightMotor.writeMicroseconds(1500 - slidingSpeed); //forward
+     servo_BackLeftMotor.writeMicroseconds(1500 + slidingSpeed); //forward
+     servo_BackRightMotor.writeMicroseconds(1500 - slidingSpeed); //forward
+     }
+     
+     stop_motors();
+     
+     }
+     if (cmFront < (current_pos_temp[1]) - 2)
+     {
+     
+     {
+     pingFront();
+     while (cmFront < current_pos_temp[1])
+     {
+     pingFront(); //update y poasition
+     servo_FrontLeftMotor.writeMicroseconds(1500 - slidingSpeed - 80); //forward
+     servo_FrontRightMotor.writeMicroseconds(1500 + slidingSpeed); //forward
+     servo_BackLeftMotor.writeMicroseconds(1500 - slidingSpeed); //forward
+     servo_BackRightMotor.writeMicroseconds(1500 + slidingSpeed); //forward
+     }
+     
+     stop_motors();
+     
+     }
+     }
+     */
   }
+  stop_motors();
 
 }
 
@@ -1155,17 +1177,21 @@ void rotateClockwise(int speed, int angle) {
   }
 
   numberOfPasses++;
-
-  //flipss the direectionality register of thecurrent position array
-  if (current_pos[2] == 1)
+  if (angle > 100)
   {
-    current_pos[2] = 0; 
+    if (current_pos[2] == 0)
+    {
+      current_pos[2] = 1;
+    } 
+
+    else if (current_pos[2] == 1)
+    {
+      current_pos[2] = 0;
+    } 
+
   }
 
-  else if (current_pos[2] == 0)
-  {
-    current_pos[2] = 1; 
-  }
+
 
 
 }
@@ -1242,7 +1268,7 @@ void pingLeft() {
 
   Serial.print("Left distance = ");
   Serial.print(cmLeft);
-  Serial.print("cm  ");
+  Serial.println("cm  ");
   //Serial.println();
 
 }
@@ -1353,37 +1379,57 @@ void searchForCube()
   {
     //checks for wall in front of robot
     pingFront();
-    while (cmFront >15) //arbitrary distance
+    while (cmFront > 15) //arbitrary distance
     {
       pingFront();
       forward(200);
 
     } //end while
+
     stop_motors();
 
+    if (current_pos[2] == 0)
+    {
+      moveRight(200, 3);
+
+      rotateClockwise(200, 160);//function should have a case for 180, where it flips
+
+
+      pingLeft();
+      while (cmLeft < (current_pos[0]) + 10) //gets the robvot to move right one robot width
+        moveRight(200, 7);
+
+    }
+
+    else if (current_pos[2] == 1)
+    {
+      moveLeft(200, 3); 
+
+
+      rotateCounterClockwise(200, 160);//function should have a case for 180, where it flips
+      //the directionality register in "current_pos"
+    }
 
 
     //if robot is now facing positive y-dir
     if (current_pos[2] == 0)
     {
-      pingLeft();
-      while (cmLeft < (current_pos[0]) + 10) //gets the robvot to move right one robot width
-        moveRight(170, 8);
-    }
-    stop_motors(); //stop robot
 
+    }
 
     if (current_pos[2] == 1)
     {
       pingRight();
       while (cmRight < (current_pos[0]) + 10) //gets the robvot to move right one robot width
-        moveLeft(170);
+        moveLeft(200, 7);
     }
     stop_motors();
 
-    //if here, robot needs to turn around;
-    rotateClockwise(200, 160);//function should have a case for 180, where it flips
-    //the directionality register in "current_pos"
+
+
+
+
+
 
     /////////////////////////////////////////////
     //CRITICAL TO OPERATION, DO NOT DELETE!!!!!
@@ -1449,16 +1495,16 @@ void rotateCounterClockwise(int speedy, int angle)
 
   //find the difference of the raw position and the zero position,
   // will need to test for values and will need to change the arbitary one
-  while ((encoder_FrontRightMotor.getRawPosition()) <= angle) {
+  while ((encoder_FrontRightMotor.getRawPosition()) <= -(9*angle)) {
     servo_FrontLeftMotor.writeMicroseconds(1500 - speedy); //reverse
-    servo_FrontRightMotor.writeMicroseconds(1500 + speedy); //forward
+    servo_FrontRightMotor.writeMicroseconds(1500 - speedy); //forward
     servo_BackLeftMotor.writeMicroseconds(1500 - speedy); //reverse
-    servo_BackRightMotor.writeMicroseconds(1500 + speedy); //forward
+    servo_BackRightMotor.writeMicroseconds(1500 - speedy); //forward
   }
 
   // if the robot rotates 180 degrees, change the directionality register to
   // the opposite of whatever it currently is
-  if (angle == 180) {
+  if (angle > 100) {
     if (current_pos[2] == 1) {
       current_pos[2] = 0;
     }
@@ -1466,6 +1512,8 @@ void rotateCounterClockwise(int speedy, int angle)
       current_pos[2] = 1;
     }
   }
+
+
 }
 //}//ADDED THIS TO END CHECKCUBE FUNCTION
 
@@ -1558,7 +1606,7 @@ void orientForDropOff()
 
   while (cmBack == 2) //second condition prevents overshoot entirely //useless crap as placeholder in while loop condition
   {
-    moveLeft(100);
+    moveLeft(100, 5);
     pingLeft(); //updates position
     //NOTE: runing this will change our current x and y positions (they will get reversed),
     //but this shouldn't really affect anything, as we're not using the x and y variables directly here
@@ -1616,8 +1664,7 @@ void backToLastKnownCube()
     }
     stop_motors();
 
-    //now we can call search for cube function again and resume out search
-    searchForCube();
+    //now we can call  for cube function again and resume out searchForCube();
 
   } //end if
 
@@ -1642,7 +1689,7 @@ void backToLastKnownCube()
     //moving in positive x-dir until our current position matches the last known cube pos x-dir
     while (current_pos[0] < last_known_cube_pos[0])
     {
-      moveLeft(100);
+      moveLeft(100, 5);
       pingRight();
       cmRight= current_pos[0]; //setting x-val to current left untrasonic reading
     }
@@ -1726,34 +1773,78 @@ void disposeCube()
 void veerRight(int speedy, int xDistance) {
   int slower = speedy - 50;
   int leftDistance = xDistance + 1; // may need to change the +3
+  int leftDistance_1 = xDistance -1;
   // for veerLeft, the right side motors are operating faster than the left side
   // this is done until we get to our set x distance away + a small value (2-3cm)
   // this is used to drive straight and correct the drift for the omniwheels
-  pingLeft();
-  while (cmLeft < leftDistance) {
-    servo_FrontLeftMotor.writeMicroseconds(1500 + speedy); // the difference in the veerRight and left
-    servo_FrontRightMotor.writeMicroseconds(1500); // is the speed of the wheels and the
-    servo_BackLeftMotor.writeMicroseconds(1500); // distance of the left wall to the ultrasonic
-    servo_BackRightMotor.writeMicroseconds(1500 - slower);
+
+  if (current_pos[2] == 0)
+
+  {  
     pingLeft();
+    while (cmLeft < leftDistance) {
+      servo_FrontLeftMotor.writeMicroseconds(1500 + speedy); // the difference in the veerRight and left
+      servo_FrontRightMotor.writeMicroseconds(1500); // is the speed of the wheels and the
+      servo_BackLeftMotor.writeMicroseconds(1500); // distance of the left wall to the ultrasonic
+      servo_BackRightMotor.writeMicroseconds(1500 - slower);
+      pingLeft();
+    }
   }
+
+  if (current_pos[2] == 1)
+  {  
+    pingRight();
+    while (cmRight > leftDistance_1) {
+      servo_FrontLeftMotor.writeMicroseconds(1500 + speedy); // the difference in the veerRight and left
+      servo_FrontRightMotor.writeMicroseconds(1500); // is the speed of the wheels and the
+      servo_BackLeftMotor.writeMicroseconds(1500); // distance of the left wall to the ultrasonic
+      servo_BackRightMotor.writeMicroseconds(1500 - slower);
+      pingRight();
+    }
+    stop_motors();
+  }
+
 }
 
 
 void veerLeft(int speedy, int xDistance) {
   int slower = speedy - 50;
   int leftDistance = xDistance - 1; // may need to change the +3
+  int leftDistance_1 = xDistance +1;
   // for veerLeft, the right side motors are operating faster than the left side
   // this is done until we get to our set x distance away + a small value (2-3cm)
   // this is used to drive straight and correct the drift for the omniwheels
-  pingLeft();
-  while (cmLeft > leftDistance) {
-    servo_FrontLeftMotor.writeMicroseconds(1500);
-    servo_FrontRightMotor.writeMicroseconds(1500 - speedy);
-    servo_BackLeftMotor.writeMicroseconds(1500 + speedy);
-    servo_BackRightMotor.writeMicroseconds(1500);
+
+  if(current_pos[2] == 0)
+  {
+
+
     pingLeft();
+    while (cmLeft > leftDistance) { //left dist is correct
+      servo_FrontLeftMotor.writeMicroseconds(1500);
+      servo_FrontRightMotor.writeMicroseconds(1500 - speedy);
+      servo_BackLeftMotor.writeMicroseconds(1500 + speedy);
+      servo_BackRightMotor.writeMicroseconds(1500);
+      pingLeft();
+    }
   }
+
+
+
+  if(current_pos[2] == 1)
+  {
+
+
+    pingRight();
+    while (cmRight < leftDistance_1) {
+      servo_FrontLeftMotor.writeMicroseconds(1500);
+      servo_FrontRightMotor.writeMicroseconds(1500 - speedy);
+      servo_BackLeftMotor.writeMicroseconds(1500 + speedy);
+      servo_BackRightMotor.writeMicroseconds(1500);
+      pingRight();
+    }
+  }
+
 }
 
 
@@ -1810,6 +1901,16 @@ void moveLeft(int slidingSpeed, int horizontalDistance)
  }
  }
  */
+
+
+
+
+
+
+
+
+
+
 
 
 
