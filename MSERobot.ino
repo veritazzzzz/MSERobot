@@ -60,9 +60,14 @@ const int ci_Back_Ultrasonic_Ping = 4; //DONT CHANGE
 const int ci_Left_Ultrasonic_Ping = 6;
 const int ci_Right_Ultrasonic_Ping = 9;
 
+
+const int ci_Base_Line_Tracker = A0;
+
+
+
 const int ci_Grip_Motor = 11;
 //const int ci_Motor_Enable_Switch = 12;
-const int ci_Right_Line_Tracker = A0;
+const int ci_Right_Line_Tracker = A7; //changed from A0 April2, 2016
 const int ci_Middle_Line_Tracker = A1;
 const int ci_Left_Line_Tracker = A2;
 const int ci_Light_Sensor = A3;
@@ -74,7 +79,7 @@ const int ci_I2C_SCL = A5;         // I2C clock = yellow
 
 
 //might have to go on seperate board
-int ISRPin = 13;
+//int ISRPin = 13;
 
 
 
@@ -226,7 +231,7 @@ int rightDuration, leftDuration, frontDuration, backDuration; //used to send a l
 const int delayTime = 10; //milisecond time
 
 //for checking cube:
-const int NOFIELD = 0; //have to change this
+const int NOFIELD = 515; //have to change this VALUE CHECKED WITH ROBOT
 
 
 int numberOfPasses; //keeps track of how many times we've driven in the y-direction
@@ -240,7 +245,7 @@ void setup() {
   ///////////////////////
   //setting up ISR
   //////////////////////
-  pinMode(ISRPin, OUTPUT);
+  //pinMode(ISRPin, OUTPUT);
   // attachInterrupt(digitalPinTOInterrupt(ISRPin), CheckCube(), RISING); //setting up ISR from LOW to HIGH on ISRPin
 
 
@@ -512,14 +517,20 @@ void loop()
         //{
         //forward(300);
         //}
-
-        searchForCube();
+       // initPos();
+        //for (int i = 0; i < 6; i++)
+        //{
+          searchForCube();
+        //}
+        //goHome(175);
         //delay(2000);
-        ///////////////////////////////////////////////
+        ///////////////forw////////////////////////////////
         //debugging move right
         // moveRight(200, 15); //should move cm to the right slowly
 
-
+        //Serial.print("hall: ");
+        //Serial.println(analogRead(A1));
+        
         //stop_motors();
 
         //delay(10000);
@@ -895,6 +906,16 @@ Serial.println(ui_Right_Line_Tracker_Data, DEC);
 //*****Driving Functions*****
 
 void forward(int speed) {
+  
+  if (analogRead(A0) < 900)
+  {
+    stop_motors(); 
+    delay(2000);
+    checkCube();
+  }
+
+
+
   servo_FrontLeftMotor.writeMicroseconds(1500 + speed + 80); //forward
   servo_FrontRightMotor.writeMicroseconds(1500 - speed); //forward
   servo_BackLeftMotor.writeMicroseconds(1500 + speed); //forward
@@ -927,7 +948,7 @@ void forward(int speed) {
         pingLeft();
         veerLeft(150, cmLeft); //new function to steer slightly to the left
       }
-      servo_FrontLeftMotor.writeMicroseconds(1500 + speed + 80); //forward
+      servo_FrontLeftMotor.writeMicroseconds(1500 + speed + 70); //forward
       servo_FrontRightMotor.writeMicroseconds(1500 - speed); //forward
       servo_BackLeftMotor.writeMicroseconds(1500 + speed); //forward
       servo_BackRightMotor.writeMicroseconds(1500 - speed); //forward
@@ -939,7 +960,7 @@ void forward(int speed) {
         veerRight(150, cmLeft); //new function to steer slightly to the left
       }
 
-      servo_FrontLeftMotor.writeMicroseconds(1500 + speed + 80); //forward
+      servo_FrontLeftMotor.writeMicroseconds(1500 + speed + 70); //forward
       servo_FrontRightMotor.writeMicroseconds(1500 - speed); //forward
       servo_BackLeftMotor.writeMicroseconds(1500 + speed); //forward
       servo_BackRightMotor.writeMicroseconds(1500 - speed); //forward
@@ -986,17 +1007,17 @@ void forward(int speed) {
   ///////////////////////////////////////////////////////////////////
 
   //if travelling in negative y-direction
-  if (current_pos[2] == 1)
+  else //if (current_pos[2] == 1)
   {
     Serial.println("entering ==1");
-    pingBack();
+    pingFront();
     pingRight();
-    current_pos[1] = cmBack; //update y coordinate (might not even need this)
+    current_pos[1] = cmFront; //update y coordinate (might not even need this)
     current_pos[0] = cmRight; //the added value accounts for width of robot MIGHT NOT NEED TO ACCOUTN FOR ROBOT WIDTH
 
     //veerLeft() and veerRight() keep us driving relatively straight in y-direction
     //robot drifting left away from wall
-    if ( current_pos[0] > (6 * numberOfPasses) + 2)
+    if ( current_pos[0] > (7 * numberOfPasses) + 2)
     {
       pingRight();
       //FUNCTION NOT WRITTEN YET, AS OF MARCH 27, 2016
@@ -1012,7 +1033,7 @@ void forward(int speed) {
     }
 
     //brings drifting towards wall
-    if ( current_pos[0] < (6 * numberOfPasses) - 2)
+    if ( current_pos[0] < (7 * numberOfPasses) - 2)
     {
       pingRight();
       veerLeft(150, cmLeft); //new function to steer slightly to the left
@@ -1379,10 +1400,10 @@ void searchForCube()
   {
     //checks for wall in front of robot
     pingFront();
-    while (cmFront > 15) //arbitrary distance
+    while (cmFront > 20) //arbitrary distance
     {
       pingFront();
-      forward(200);
+      forward(150);
 
     } //end while
 
@@ -1410,7 +1431,7 @@ void searchForCube()
       Serial.println("correct if condition");
       ///delay(2000);
 
-      rotateCounterClockwise(200, 167);//function should have a case for 180, where it flips
+      rotateCounterClockwise(200, 165);//function should have a case for 180, where it flips
       //the directionality register in "current_pos"
 
       pingLeft();
@@ -1457,7 +1478,7 @@ void searchForCube()
 //Checking if the Tesseract is Real or Not using the hall effect sensor
 
 void checkCube() {
-  int raw = analogRead(0);  //**will need to change the pin number
+  int raw = analogRead(A1);  //**will need to change the pin number //A1 is base hall effect sensor
   //Hall Effect range might be from 0-1024, will have to test this
   //and see the values that the
 
@@ -1469,17 +1490,22 @@ void checkCube() {
   // Make a global variable called "NOFIELD" and make it the value that the
   // hall effect detects when there is no field
 
-  if (magneticFlux == 0) {
+  if ((magneticFlux < 2) || (magneticFlux > 2)) { //small differences accepted, but if magnet present, will be large value
     // Input code to dipose of the tesseract
     // Possibly call the pickup function and drive to home position and dispose?
     // void PickUpTesseract();
+    //disposeOfCube();
+    //stop_motors();
+    //delay(2000);
+    Serial.println(fuck!");
+    delay(1000);
 
   }
 
   else {
     // Return to home position and callthe indexing function
     // void PickUpTesseract();
-    // void goHome();
+    goHome(200);
   }
 }//end function
 
@@ -1519,8 +1545,11 @@ void rotateCounterClockwise(int speedy, int angle)
 
 
 
-void goHome()
+void goHome(int slidingSpeed)
 {
+  stop_motors();
+
+
   last_known_cube_pos[0] = current_pos[0];
   last_known_cube_pos[1] = current_pos[1];
   last_known_cube_pos[2] = current_pos[2];
@@ -1530,49 +1559,73 @@ void goHome()
 
   if (current_pos[2] == 1) //facing negative y
   {
+    pingRight();
+    pingFront();
+    last_known_cube_pos[0] = cmRight;
+    last_known_cube_pos[1] = cmFront;
 
-    while (current_pos[0] > home_pos[0] + 20)  //x-dir-> leaving enough room to turn to face the side wall
+    while (cmRight > home_pos[0] + 15)  //x-dir-> leaving enough room to turn to face the side wall
     {
-      moveRight(100, 8);
+      //moveRight(100, 8);
+
+      pingRight();
+      //pingFront();
+      servo_FrontLeftMotor.writeMicroseconds(1500 + slidingSpeed);
+      servo_FrontRightMotor.writeMicroseconds(1500 + slidingSpeed);
+      servo_BackLeftMotor.writeMicroseconds(1500 - slidingSpeed);
+      servo_BackRightMotor.writeMicroseconds(1500 - slidingSpeed);
+
+
+
+
       pingRight(); //updates our x values
+    }
+    stop_motors();
+
+
+    delay(1000);
+
+
+    //now right along the side wall
+    while (cmFront > home_pos[1] + 20) { //y-dir -> leaving enough room to start indexing
+      forward(150);
+    }
+    stop_motors(); //have to stop the motors after we move, or we'll continue driving in that direction forever,
+    // else it's good practise
+
+    rotateClockwise(175, 90); //rotates 90 degrees with speedy = 100
+    stop_motors();
+    orientForDropOff(); //orients the robot for indexing and dropping off cubes
+
+  }
+  else //if (current_pos[2] == 0) //facing positive y
+  {
+    rotateCounterClockwise(100, 160); //turns to face negative y direction
+
+    while (current_pos[0] > home_pos[0])// x - dir-> leave room for rotation
+    {
+      pingRight();
+      //pingFront();
+      servo_FrontLeftMotor.writeMicroseconds(1500 + slidingSpeed);
+      servo_FrontRightMotor.writeMicroseconds(1500 + slidingSpeed);
+      servo_BackLeftMotor.writeMicroseconds(1500 - slidingSpeed);
+      servo_BackRightMotor.writeMicroseconds(1500 - slidingSpeed);
+      pingRight(); //updates position
     }
     stop_motors();
 
     //now right along the side wall
     while (current_pos[1] > home_pos[1] + 20) { //y-dir -> leaving enough room to start indexing
-      forward(100);
+      forward(175);
     }
     stop_motors(); //have to stop the motors after we move, or we'll continue driving in that direction forever,
     // else it's good practise
 
     rotateClockwise(100, 90); //rotates 90 degrees with speedy = 100
     stop_motors();
-    orientForDropOff(); //orients the robot for indexing and dropping off cubes
-
-
-    if (current_pos[2] == 0) //facing positive y
-    {
-      rotateCounterClockwise(100, 180); //turns to face negative y direction
-
-      while (current_pos[0] > home_pos[0])// x - dir-> leave room for rotation
-      {
-        moveRight(100, 8);
-        pingRight(); //updates position
-      }
-      stop_motors();
-
-      //now right along the side wall
-      while (current_pos[1] > home_pos[1] + 20) { //y-dir -> leaving enough room to start indexing
-        forward(100);
-      }
-      stop_motors(); //have to stop the motors after we move, or we'll continue driving in that direction forever,
-      // else it's good practise
-
-      rotateClockwise(100, 90); //rotates 90 degrees with speedy = 100
-      stop_motors();
-      orientForDropOff();
-    }
+    orientForDropOff();
   }
+
 }//end go home
 
 
@@ -1784,19 +1837,19 @@ void veerRight(int speedy, int xDistance) {
       servo_FrontLeftMotor.writeMicroseconds(1500 + speedy); // the difference in the veerRight and left
       servo_FrontRightMotor.writeMicroseconds(1500); // is the speed of the wheels and the
       servo_BackLeftMotor.writeMicroseconds(1500); // distance of the left wall to the ultrasonic
-      servo_BackRightMotor.writeMicroseconds(1500 - slower);
+      servo_BackRightMotor.writeMicroseconds(1500 - speedy); //changed from slower
       pingLeft();
     }
   }
 
-  if (current_pos[2] == 1)
+  else //if (current_pos[2] == 1)
   {  
     pingRight();
     while (cmRight > leftDistance_1) {
       servo_FrontLeftMotor.writeMicroseconds(1500 + speedy); // the difference in the veerRight and left
       servo_FrontRightMotor.writeMicroseconds(1500); // is the speed of the wheels and the
       servo_BackLeftMotor.writeMicroseconds(1500); // distance of the left wall to the ultrasonic
-      servo_BackRightMotor.writeMicroseconds(1500 - slower);
+      servo_BackRightMotor.writeMicroseconds(1500 - speedy); //changed from slower
       pingRight();
     }
     stop_motors();
@@ -1828,12 +1881,15 @@ void veerLeft(int speedy, int xDistance) {
 
 
 
-  if(current_pos[2] == 1)
+  else //if(current_pos[2] == 1)
   {
 
 
     pingRight();
-    while (cmRight > leftDistance_1) {
+    while (cmRight > xDistance) { //changed from left_distance_1
+      //not going into this statement
+      Serial.println("the robot is in this statement");
+
       servo_FrontLeftMotor.writeMicroseconds(1500);
       servo_FrontRightMotor.writeMicroseconds(1500 - speedy);
       servo_BackLeftMotor.writeMicroseconds(1500 + speedy);
@@ -1898,6 +1954,8 @@ void moveLeft(int slidingSpeed, int horizontalDistance)
  }
  }
  */
+
+
 
 
 
