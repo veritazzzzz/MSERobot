@@ -10,6 +10,7 @@
 
 #include <Wire.h>
 #include <I2CEncoder.h>
+#include <String.h>
 
 Servo servo_FrontRightMotor;
 Servo servo_FrontLeftMotor;
@@ -241,6 +242,11 @@ int numberOfPasses; //keeps track of how many times we've driven in the y-direct
 
 void setup() {
 
+  
+  //pullup resistor setup for A2
+  
+  digitalWrite(16, HIGH);
+  
 
   ///////////////////////
   //setting up ISR
@@ -520,7 +526,11 @@ void loop()
         // initPos();
         //for (int i = 0; i < 6; i++)
         //{
-        searchForCube();
+        //searchForCube();
+
+        //PickUpTesseract();
+         analogWrite(A2, 255);// for pickup cube
+        delay(2000);
         //}
         //goHome(175);
         //delay(2000);
@@ -1505,7 +1515,7 @@ void checkCube() {
 
   else {
     // Return to home position and callthe indexing function
-    // void PickUpTesseract();
+    PickUpTesseract();
     goHome(200);
   }
 }//end function
@@ -1800,6 +1810,68 @@ void veerLeft(int speedy, int xDistance) {
 }
 
 
+
+////////////////////////////////////////////////
+//FUNCTION GIVES CONTROL OF THE ROBOT TO THE SECOOND BAORD
+//VIA SERIAL COMM, SECOND BOARD CONTROLS SERVOS, PICKS UP CUBE
+//THEN RETURNS CONTROL BACK TO BAORD 1
+void PickUpTesseract()
+{
+  //reverse a little before picking up
+  //reverse(200);
+  delay(75);
+  Serial.write(1); //read as int  equala to 49
+
+
+delay(2000); //delay 10 seconds to allow for picking up
+/*
+
+  boolean break_temp = false;
+  while (break_temp == false)
+    //use a while to hold the code here while we pick up a cube (other board)
+  {
+    if (Serial.available() > 0) //while there is something to read from the serial buffer
+    {
+      int temp_message = Serial.parseInt();
+      if ( temp_message == 1) //code to pick up cube from bottom //corresponds to 1
+      {
+        delay(15); //lets other boards function return
+        break_temp = true;
+        //we have cube, baord 2 responded saying it's done with pickUpCube();
+        //pickUpCube();
+        //delay(500);
+        //Serial.write(1);
+        //Serial.println(temp_message);
+        //digitalWrite(13, HIGH);
+        //delay(1000);
+        //digitalWrite(13, LOW); 
+      }//end if
+      else
+      {
+        //if here, we wait for other board to finish, therefore do nothing
+        //forward(200); //for debugging only
+      }//end else
+
+    }//end if
+  } //end while
+
+*/
+  /*
+  Serial.write(1);
+   int message = Serial.read(); //reads a byte
+   while ( message != 49) //message to signify that board 2 has cue
+   {
+   message = Serial.read();
+   delay(100);
+   stop_motors();
+   //holds board one here until board two has finished picking up the cube
+   }//end while
+   
+   forward(200);
+   */
+
+
+}//end pickupTesseract
 
 
 
