@@ -1555,9 +1555,21 @@ void goHome(int speed)
   pingFront();
   pingBack();
 
-  last_known_cube_pos[0] = current_pos[0];
-  last_known_cube_pos[1] = current_pos[1];
-  last_known_cube_pos[2] = current_pos[2];
+
+
+  if(current_pos[2] == 0)
+  {
+    last_known_cube_pos[0] = cmLeft;
+    last_known_cube_pos[1] = cmBack;
+    last_known_cube_pos[2] = current_pos[2];
+  }
+
+  else //current_pos[2] == 1
+  {
+    last_known_cube_pos[0] = cmRight;
+    last_known_cube_pos[1] = cmFront;
+    last_known_cube_pos[2] = current_pos[2];
+  }
 
   // records our current position to last known so we know where to start searching
 
@@ -1571,7 +1583,6 @@ void goHome(int speed)
 
     while (cmRight > home_pos[0] + 15)  //x-dir-> leaving enough room to turn to face the side wall
     {
-      //moveRight(100, 8);
 
       pingRight();
       //pingFront();
@@ -1580,15 +1591,13 @@ void goHome(int speed)
       servo_BackLeftMotor.writeMicroseconds(1500 - speed);
       servo_BackRightMotor.writeMicroseconds(1500 - speed);
 
-
-
-
       pingRight(); //updates our x values
     }
     stop_motors();
 
 
     delay(1000);
+    //for debugging
 
 
     //now right along the side wall
@@ -1598,11 +1607,29 @@ void goHome(int speed)
     stop_motors(); //have to stop the motors after we move, or we'll continue driving in that direction forever,
     // else it's good practise
 
-    rotateClockwise(175, 90); //rotates 90 degrees with speedy = 100
-    stop_motors();
-    orientForDropOff(); //orients the robot for indexing and dropping off cubes
+    pingRight();
+    //get the robot off the right wall
+    while (cmRight < 15)  //x-dir-> leaving enough room to turn to face the side wall
+    {
 
-  }
+      pingRight();
+      //pingFront();
+      servo_FrontLeftMotor.writeMicroseconds(1500 - speed);
+      servo_FrontRightMotor.writeMicroseconds(1500 - speed);
+      servo_BackLeftMotor.writeMicroseconds(1500 + speed);
+      servo_BackRightMotor.writeMicroseconds(1500 + speed);
+
+      pingRight(); //updates our x values
+    }
+    stop_motors();
+
+
+
+    rotateClockwise(175, 100); //rotates 90 degrees with speedy = 100
+    stop_motors();
+    //orientForDropOff(); //orients the robot for indexing and dropping off cubes
+
+  }// end if
 
   else //if (current_pos[2] == 0) //facing positive y
   {
@@ -1771,6 +1798,8 @@ void veerLeft(int speedy, int xDistance) {
     }
   }
 }
+
+
 
 
 
